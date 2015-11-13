@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="7706" systemVersion="14C2055" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES">
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="7703"/>
+        <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <tableViewCell contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" reuseIdentifier="DZGetMoneyRecordTableViewCell" rowHeight="67" id="KGk-i7-Jjw" customClass="DZGetMoneyRecordTableViewCell">
+            <rect key="frame" x="0.0" y="0.0" width="320" height="67"/>
+            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+            <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="KGk-i7-Jjw" id="H2p-sc-9uM">
+                <rect key="frame" x="0.0" y="0.0" width="320" height="43"/>
+                <autoresizingMask key="autoresizingMask"/>
+                <subviews>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="msk" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="qUy-dz-0tF">
+                        <rect key="frame" x="8" y="0.0" width="110" height="21"/>
+                        <fontDescription key="fontDescription" type="system" pointSize="15"/>
+                        <color key="textColor" red="0.59999999999999998" green="0.59999999999999998" blue="0.59999999999999998" alpha="1" colorSpace="calibratedRGB"/>
+                        <nil key="highlightedColor"/>
+                    </label>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="工商银行尾号9090" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="1WT-bT-1dQ">
+                        <rect key="frame" x="118" y="0.0" width="202" height="21"/>
+                        <constraints>
+                            <constraint firstAttribute="width" constant="202" id="F5Y-la-T5O"/>
+                            <constraint firstAttribute="height" constant="21" id="pTH-wU-CYf"/>
+                        </constraints>
+                        <fontDescription key="fontDescription" type="system" pointSize="15"/>
+                        <color key="textColor" white="0.66666666666666663" alpha="1" colorSpace="calibratedWhite"/>
+                        <nil key="highlightedColor"/>
+                    </label>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="等待审核" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="mdX-LI-fLy">
+                        <rect key="frame" x="204" y="23" width="108" height="21"/>
+                        <constraints>
+                            <constraint firstAttribute="height" constant="21" id="UTn-1A-bCi"/>
+                            <constraint firstAttribute="width" constant="108" id="u0w-1m-rgl"/>
+                        </constraints>
+                        <fontDescription key="fontDescription" type="system" pointSize="15"/>
+                        <color key="textColor" white="0.33333333333333331" alpha="1" colorSpace="calibratedWhite"/>
+                        <nil key="highlightedColor"/>
+                    </label>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="¥1.00元" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="1ez-JO-Blp">
+                        <rect key="frame" x="59" y="24" width="132" height="21"/>
+                        <fontDescription key="fontDescription" type="system" pointSize="15"/>
+                        <color key="textColor" red="1" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                        <nil key="highlightedColor"/>
+                    </label>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="2015-01-01 23:20:11" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="NoW-Sv-uyN">
+                        <rect key="frame" x="94" y="53" width="218" height="13"/>
+                        <constraints>
+                            <constraint firstAttribute="height" constant="13" id="jnj-kX-bNf"/>
+                            <constraint firstAttribute="width" constant="218" id="zJl-fO-kG6"/>
+                        </constraints>
+                        <fontDescription key="fontDescription" type="system" pointSize="13"/>
+                        <color key="textColor" white="0.66666666666666663" alpha="1" colorSpace="calibratedWhite"/>
+                        <nil key="highlightedColor"/>
+                    </label>
+                </subviews>
+                <constraints>
+                    <constraint firstItem="NoW-Sv-uyN" firstAttribute="trailing" secondItem="H2p-sc-9uM" secondAttribute="trailingMargin" id="1Ov-Pu-ajS"/>
+                    <constraint firstItem="1WT-bT-1dQ" firstAttribute="top" secondItem="H2p-sc-9uM" secondAttribute="topMargin" constant="-8" id="aFz-Vl-7eI"/>
+                    <constraint firstAttribute="bottomMargin" secondItem="mdX-LI-fLy" secondAttribute="bottom" constant="14.5" id="bfR-8S-vGT"/>
+                    <constraint firstAttribute="trailingMargin" secondItem="1WT-bT-1dQ" secondAttribute="trailing" constant="-8" id="fRK-y4-wMP"/>
+                    <constraint firstItem="mdX-LI-fLy" firstAttribute="trailing" secondItem="H2p-sc-9uM" secondAttribute="trailingMargin" id="lr1-Ze-Leb"/>
+                    <constraint firstAttribute="bottomMargin" secondItem="NoW-Sv-uyN" secondAttribute="bottom" constant="-7.5" id="oXf-ZV-c03"/>
+                </constraints>
+            </tableViewCellContentView>
+            <connections>
+                <outlet property="bankCarsName" destination="qUy-dz-0tF" id="KTN-G6-5Bh"/>
+                <outlet property="bankNumber" destination="1WT-bT-1dQ" id="uY1-Dg-30y"/>
+                <outlet property="createTime" destination="NoW-Sv-uyN" id="yfK-hR-Qwa"/>
+                <outlet property="receiveMoney" destination="1ez-JO-Blp" id="Wmf-O0-XRx"/>
+                <outlet property="statusLabel" destination="mdX-LI-fLy" id="5Fj-UF-0cX"/>
+            </connections>
+            <point key="canvasLocation" x="232" y="145.5"/>
+        </tableViewCell>
+    </objects>
+</document>

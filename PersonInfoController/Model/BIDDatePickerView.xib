@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="7706" systemVersion="14C2055" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES">
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="7703"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <view contentMode="scaleToFill" id="jnz-Ta-J6Y" customClass="BIDDatePickerView">
+            <rect key="frame" x="0.0" y="-5" width="320" height="206"/>
+            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+            <subviews>
+                <datePicker contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" datePickerMode="date" minuteInterval="1" translatesAutoresizingMaskIntoConstraints="NO" id="9P7-aC-SV6">
+                    <rect key="frame" x="0.0" y="44" width="320" height="162"/>
+                    <date key="date" timeIntervalSinceReferenceDate="457873730.38188398">
+                        <!--2015-07-06 11:08:50 +0000-->
+                    </date>
+                    <date key="maximumDate" timeIntervalSinceReferenceDate="3155626800">
+                        <!--2100-12-31 11:00:00 +0000-->
+                    </date>
+                    <locale key="locale" localeIdentifier="zh-Hans"/>
+                </datePicker>
+                <toolbar opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="HB3-xD-Hp3">
+                    <rect key="frame" x="0.0" y="0.0" width="320" height="44"/>
+                    <items>
+                        <barButtonItem title="取消" id="5rR-dU-ueX">
+                            <connections>
+                                <action selector="cancelAction:" destination="jnz-Ta-J6Y" id="rIn-Go-JIB"/>
+                            </connections>
+                        </barButtonItem>
+                        <barButtonItem style="plain" systemItem="flexibleSpace" id="mGu-Tk-ugb"/>
+                        <barButtonItem title="确定" id="MJI-tp-3Xg">
+                            <connections>
+                                <action selector="showSelected:" destination="jnz-Ta-J6Y" id="kkI-Ht-6Jr"/>
+                            </connections>
+                        </barButtonItem>
+                    </items>
+                </toolbar>
+            </subviews>
+            <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+            <constraints>
+                <constraint firstItem="9P7-aC-SV6" firstAttribute="leading" secondItem="jnz-Ta-J6Y" secondAttribute="leading" id="8fw-A7-GfJ"/>
+                <constraint firstAttribute="bottom" secondItem="9P7-aC-SV6" secondAttribute="bottom" id="CBp-3I-p6s"/>
+                <constraint firstItem="HB3-xD-Hp3" firstAttribute="top" secondItem="jnz-Ta-J6Y" secondAttribute="top" id="Rk6-eu-JEM"/>
+                <constraint firstItem="HB3-xD-Hp3" firstAttribute="leading" secondItem="jnz-Ta-J6Y" secondAttribute="leading" id="WIS-uU-PLg"/>
+                <constraint firstItem="9P7-aC-SV6" firstAttribute="top" secondItem="HB3-xD-Hp3" secondAttribute="bottom" id="oFF-PR-QTP"/>
+                <constraint firstAttribute="trailing" secondItem="HB3-xD-Hp3" secondAttribute="trailing" id="uxZ-ZI-iRN"/>
+                <constraint firstAttribute="trailing" secondItem="9P7-aC-SV6" secondAttribute="trailing" id="wLs-UP-8np"/>
+            </constraints>
+            <nil key="simulatedStatusBarMetrics"/>
+            <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
+            <connections>
+                <outlet property="cancelItem" destination="5rR-dU-ueX" id="esD-CN-cf4"/>
+                <outlet property="datePicker" destination="9P7-aC-SV6" id="x9U-bZ-qLZ"/>
+                <outlet property="showItem" destination="MJI-tp-3Xg" id="OSx-tB-5cm"/>
+            </connections>
+            <point key="canvasLocation" x="407" y="232"/>
+        </view>
+    </objects>
+</document>

@@ -1,0 +1,33 @@
+//
+//  PrefixHeader.pch
+//  LotteryGod
+//
+//  Created by 马士奎 on 15/10/3.
+//  Copyright (c) 2015年 DZ. All rights reserved.
+//
+
+#import <Availability.h>
+
+#ifndef __IPHONE_3_0
+#warning "This project uses features only available in iOS SDK 3.0 and later."
+#endif
+
+#ifdef __OBJC__
+
+#import "DZUtile.h"
+#import "DZAllUse.h"
+#import "DZInterface.h"
+#import "DZAllCommon.h"
+#import "enmus.h"
+#import "DZBaseRequestModel.h"
+#import <NSDictionary+RequestEncoding.h>
+#import "DZRequest.h"
+#ifdef DEBUG
+#define NSLog(...) NSLog(__VA_ARGS__)
+#else
+#define NSLog(...) do { } while (0)
+#endif
+
+#endif
+
+
