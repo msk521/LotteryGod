@@ -13,4 +13,6 @@
 @property (nonatomic,copy) NSString *account;
 //密码
 @property (nonatomic,copy) NSString *password;
+//设备id
+@property (nonatomic,copy) NSString *lastLoginUUID;
 @end

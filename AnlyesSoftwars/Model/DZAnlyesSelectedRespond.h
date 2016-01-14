@@ -27,4 +27,5 @@
 @property (nonatomic,copy) NSString *danmaValue;
 //为删除时做临时存储用
 @property (nonatomic,copy) NSString *tempDanma;
+
 @end

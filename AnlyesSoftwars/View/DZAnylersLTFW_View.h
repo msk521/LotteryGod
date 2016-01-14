@@ -11,6 +11,6 @@
 @interface DZAnylersLTFW_View : DZAnylesView
 //选择的名字
 @property (nonatomic,copy) NSString *selectedName;
--(void)replay:(DZAnlyesRespond *)model;
+-(void)replay:(DZAnlyesRespond *)model selectedNumber:(NSString *)selectedNumber;
 @end
 

@@ -111,6 +111,16 @@
                         <color key="textColor" red="0.70588235290000001" green="0.0" blue="0.32549019610000002" alpha="1" colorSpace="calibratedRGB"/>
                         <nil key="highlightedColor"/>
                     </label>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Rw5-Pn-slu">
+                        <rect key="frame" x="83" y="178" width="99" height="21"/>
+                        <constraints>
+                            <constraint firstAttribute="width" constant="99" id="N39-pq-c3G"/>
+                            <constraint firstAttribute="height" constant="21" id="jcw-Ra-yQt"/>
+                        </constraints>
+                        <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                        <color key="textColor" red="0.98039215690000003" green="0.18823529410000001" blue="0.33333333329999998" alpha="1" colorSpace="calibratedRGB"/>
+                        <nil key="highlightedColor"/>
+                    </label>
                 </subviews>
                 <constraints>
                     <constraint firstItem="Xae-ez-AW1" firstAttribute="leading" secondItem="U8x-2L-sWX" secondAttribute="trailing" constant="8" id="1Qa-37-XK6"/>
@@ -130,6 +140,7 @@
                     <constraint firstItem="F9R-mV-1KC" firstAttribute="top" secondItem="H2p-sc-9uM" secondAttribute="topMargin" constant="31" id="FO9-oM-27m"/>
                     <constraint firstAttribute="trailingMargin" secondItem="Qwu-kO-Hut" secondAttribute="trailing" constant="12" id="FPQ-Nn-Szd"/>
                     <constraint firstItem="Xae-ez-AW1" firstAttribute="centerX" secondItem="F9R-mV-1KC" secondAttribute="centerX" constant="-48" id="I4f-hw-ROC"/>
+                    <constraint firstItem="Rw5-Pn-slu" firstAttribute="top" secondItem="LD2-HA-YVb" secondAttribute="top" id="LG1-O4-STs"/>
                     <constraint firstItem="Tp4-cK-bA3" firstAttribute="width" secondItem="eTi-XY-FYl" secondAttribute="width" id="LfM-iT-PDl"/>
                     <constraint firstItem="1Zf-Ie-srX" firstAttribute="top" secondItem="XGJ-Ds-wQM" secondAttribute="bottom" constant="13" id="NGd-sr-9L8"/>
                     <constraint firstItem="Tp4-cK-bA3" firstAttribute="height" secondItem="eTi-XY-FYl" secondAttribute="height" id="PLU-NW-VWU"/>
@@ -152,6 +163,7 @@
                     <constraint firstItem="LD2-HA-YVb" firstAttribute="top" secondItem="XGJ-Ds-wQM" secondAttribute="bottom" constant="13" id="h7M-6R-OwB"/>
                     <constraint firstItem="F9R-mV-1KC" firstAttribute="leading" secondItem="Xae-ez-AW1" secondAttribute="trailing" constant="8" id="hJg-8E-Adf"/>
                     <constraint firstItem="F9R-mV-1KC" firstAttribute="height" secondItem="eTi-XY-FYl" secondAttribute="height" id="hM0-lm-gQX"/>
+                    <constraint firstItem="Rw5-Pn-slu" firstAttribute="leading" secondItem="LD2-HA-YVb" secondAttribute="trailing" constant="-1" id="het-fq-slf"/>
                     <constraint firstItem="Plt-V4-6AH" firstAttribute="top" secondItem="Dj0-hs-UGp" secondAttribute="bottom" constant="4" id="jWx-5g-khN"/>
                     <constraint firstAttribute="centerX" secondItem="h6D-rE-5Ta" secondAttribute="centerX" id="l0D-so-ENb"/>
                     <constraint firstItem="Tp4-cK-bA3" firstAttribute="centerX" secondItem="eTi-XY-FYl" secondAttribute="centerX" constant="48" id="lqO-yt-nrC"/>
@@ -175,10 +187,11 @@
                 <outlet property="currentPoidsLabel" destination="h6D-rE-5Ta" id="CVZ-sy-lpq"/>
                 <outlet property="moneyIcon" destination="j5m-cA-n8V" id="GhC-Br-TRi"/>
                 <outlet property="moneyName" destination="LD2-HA-YVb" id="rb9-cI-gEI"/>
+                <outlet property="mybalance" destination="Rw5-Pn-slu" id="v3S-tu-4D3"/>
                 <outlet property="nextTime" destination="Plt-V4-6AH" id="ong-fn-twn"/>
                 <outlet property="userRange" destination="g0b-KC-fAU" id="c9A-yD-Ya7"/>
             </connections>
-            <point key="canvasLocation" x="267" y="164"/>
+            <point key="canvasLocation" x="297" y="7"/>
         </tableViewCell>
     </objects>
     <resources>

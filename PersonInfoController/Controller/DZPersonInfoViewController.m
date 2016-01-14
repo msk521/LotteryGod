@@ -23,7 +23,10 @@
     __weak IBOutlet UITextField *qqField;
     __weak IBOutlet UITextField *emailField;
     int sexIntValue;
+    //用户名
+    __weak IBOutlet UILabel *userAccountField;
 }
+
 @property (weak, nonatomic) IBOutlet UITextField *brithdayField;
 @end
 @interface DZPersonInfoViewController ()<UITextFieldDelegate>
@@ -35,8 +38,15 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     sexIntValue = 0;
+    userNameField.text =  [DZAllCommon shareInstance].userInfoMation.name;
+    userSex.text = [DZAllCommon shareInstance].userInfoMation.sex;
+    sexIntValue = [userSex.text isEqual:@"男"]?0:1;
+    self.brithdayField.text = [DZAllCommon shareInstance].userInfoMation.birthday;
+    qqField.text = [DZAllCommon shareInstance].userInfoMation.qq;
+    emailField.text = [DZAllCommon shareInstance].userInfoMation.email;
+    mobileNumber.text = [DZAllCommon shareInstance].userInfoMation.phone;
+    userAccountField.text = [NSString stringWithFormat:@"账号:%@",[DZAllCommon shareInstance].userInfoMation.account];
 }
-
 
 //选择性别
 - (IBAction)selectedSex:(UIButton *)sender {
@@ -87,9 +97,17 @@
     request.birthday = self.brithdayField.text;
     request.qq = qqField.text;
     request.email = emailField.text;
+    request.phone =  mobileNumber.text;
     
     [[DZRequest shareInstance] requestWithParamter:request requestFinish:^(NSDictionary *result) {
         if ([result[@"success"] intValue] == 1) {
+            [DZAllCommon shareInstance].userInfoMation.name = request.name;
+            [DZAllCommon shareInstance].userInfoMation.sex = request.sex == 0? @"男":@"女";
+            [DZAllCommon shareInstance].userInfoMation.birthday = request.birthday;
+            [DZAllCommon shareInstance].userInfoMation.qq = request.qq;
+            [DZAllCommon shareInstance].userInfoMation.email = request.email;
+            [DZAllCommon shareInstance].userInfoMation.phone = request.phone;
+            
             [self.hud show:YES];
             self.hud.labelText = @"修改成功";
             [self.hud hide:YES afterDelay:1.0f];

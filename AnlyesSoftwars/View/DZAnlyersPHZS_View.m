@@ -18,14 +18,11 @@
 @end
 @implementation DZAnlyersPHZS_View
 
-////点击确认
-//-(void)shouldSelected{
-//    if (self.showView) {
-//        self.showView(nil);
-//    }
-//}
-
--(void)replay:(DZAnlyesRespond *)model{
+-(void)replay:(DZAnlyesRespond *)model selectedNumber:(NSString *)selectedNumber{
+    NSArray *haveselected = nil;
+    if (selectedNumber) {
+        haveselected = [selectedNumber componentsSeparatedByString:@","];
+    }
     selectedNames = [[NSMutableArray alloc] init];
     selectedNumbers = [[NSMutableArray alloc] init];
     self.selectedAnlyesName = model.name;
@@ -55,6 +52,7 @@
         for (int i = 0; i < sourtedArr.count; i++) {
             NSString *key = sourtedArr[i];
             NSString *value = possibleValues[key];
+            
             UIButton *button = [[UIButton alloc] initWithFrame:CGRectMake(x+i*with, anlyesView.frame.size.height / 2 , with-10, with-10)];
             [button addTarget:self action:@selector(selectedNumber:) forControlEvents:UIControlEventTouchUpInside];
             button.tag = 100 + i;
@@ -64,6 +62,10 @@
             [button setBackgroundImage:[UIImage imageNamed:@"circle"] forState:UIControlStateNormal];
             [button setTitle:value forState:UIControlStateNormal];
             [anlyesView addSubview:button];
+            
+            if (selectedNumber && haveselected && [haveselected containsObject:key]) {
+                [self selectedNumber:button];
+            }
         }
     }
 }

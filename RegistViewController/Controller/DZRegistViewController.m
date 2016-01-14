@@ -139,6 +139,12 @@
     }
 }
 
+//用户注册协议
+- (IBAction)lookRegis:(id)sender {
+    
+}
+
+
 #pragma mark---UITextFieldDelegate
 -(BOOL)textFieldShouldReturn:(UITextField *)textField{
     [self.view endEditing:YES];

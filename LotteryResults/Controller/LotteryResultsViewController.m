@@ -13,21 +13,31 @@
 #import "DZLottySearchRequet.h"
 #import "DZRequest.h"
 #import "DZLastWinNumberRespond.h"
+#import "DZLottyKindsRespond.h"
 #define CellIndentify @"DZResultTableViewCell"
 @interface LotteryResultsViewController ()<UITableViewDataSource,UITableViewDelegate>
 @property (weak, nonatomic) IBOutlet UIView *backView;
 @property (weak, nonatomic) IBOutlet UITableView *resultTableView;
 @property (nonatomic,strong) NSMutableArray *dataSource;
+@property (weak, nonatomic) IBOutlet UIButton *resultTitle;
 @property (nonatomic,strong) DZLottySearchRequet *lastRequest;
 @end
 
 @implementation LotteryResultsViewController
 
+-(void)viewWillAppear:(BOOL)animated{
+    [super viewWillAppear:animated];
+    DZLottyKindsRespond *current = [DZAllCommon shareInstance].currentLottyKind;
+    [self.resultTitle setTitle:[NSString stringWithFormat:@"%@-开奖结果",current.name] forState:UIControlStateNormal];
+    self.lastRequest = [[DZLottySearchRequet alloc] init];
+    [self refreash];
+}
 - (void)viewDidLoad {
     [super viewDidLoad];
+    
     self.backView.layer.masksToBounds = YES;
     self.backView.layer.cornerRadius = 10.0f;
-    self.lastRequest = [[DZLottySearchRequet alloc] init];
+
     [self reset];
 }
 
@@ -41,7 +51,6 @@
         // 加载更多
         [self loadMoreData];
     }];
-    [self.resultTableView.header beginRefreshing];
 }
 
 //刷新
@@ -52,7 +61,6 @@
     [[DZRequest shareInstance] requestWithParamter:self.lastRequest requestFinish:^(NSDictionary *result) {
         NSArray *results = result[@"result"];
         if (results) {
-//            results = [[results reverseObjectEnumerator] allObjects];
             for (NSDictionary *dic in results){
                  DZLastWinNumberRespond *respond = [[DZLastWinNumberRespond alloc] initWithDic:dic];
                 [self.dataSource addObject:respond];

@@ -8,13 +8,16 @@
 
 #import "DZUtile.h"
 #import "AppDelegate.h"
-
+#import "DZCheckUpdateRequest.h"
+#import "DZCheckUpdateRespond.h"
 static UIViewController *currentController;
 
 LoadingLogingControllerFinished leftControllerHidden;
 DZLoginViewController *currentLoginController;
-
+@interface DZUtile()<UIAlertViewDelegate>
+@end
 @implementation DZUtile
+
 //显示/隐藏登录
 +(void)showLoginViewController:(DZLoginViewController *)loginController animation:(BOOL)animation finishLoading:(LoadingLogingControllerFinished)finishLoading hiddenFinish:(LoadingLogingControllerFinished)hiddenFinish{
     AppDelegate *main = [UIApplication sharedApplication].delegate;
@@ -168,20 +171,26 @@ DZLoginViewController *currentLoginController;
     NSDateFormatter *format=[[NSDateFormatter alloc] init];
     [format setDateFormat:@"yyyy-MM-dd HH:mm:ss"];
     NSLog(@"yyyy:%@",[[lastTime componentsSeparatedByString:@"."] firstObject]);
+ 
     NSDate *fromdate=[format dateFromString:[[lastTime componentsSeparatedByString:@"."] firstObject]];
     NSTimeZone *fromzone = [NSTimeZone systemTimeZone];
     NSInteger frominterval = [fromzone secondsFromGMTForDate: fromdate];
     NSDate *fromDate = [fromdate  dateByAddingTimeInterval: frominterval];
-    NSLog(@"fromdate=%@",fromDate);
+    
     //获取当前时间
     NSDate *date = [NSDate date];
     NSTimeZone *zone = [NSTimeZone systemTimeZone];
     NSInteger interval = [zone secondsFromGMTForDate: date];
     NSDate *localeDate = [date  dateByAddingTimeInterval: interval];
-    NSLog(@"localeDate=%@",localeDate);
-   NSInteger iSeconds = [localeDate timeIntervalSinceDate:fromDate];
+    NSLog(@"fromdate=%@",fromDate);
+    NSLog(@"fromdate=%@",localeDate);
+    NSInteger iSeconds = [localeDate timeIntervalSinceDate:fromDate];
+    NSLog(@"timer:%d",iSeconds);
+//    NSString *showMessage = [NSString stringWithFormat:@"fromdate=%@ \n localeDate=%@ 差值:%ld",fromDate,localeDate,(long)iSeconds];
+//    [DZUtile showAlertViewWithMessage:showMessage];
     return iSeconds;
 }
+
 /**
  *  存储用户数据
  */
@@ -219,5 +228,65 @@ DZLoginViewController *currentLoginController;
         return YES;
     }
 }
+/**
+ *  检测升级
+ */
++(void)checkVersion:(id)delegate{
+    AppDelegate *delegateApp = (AppDelegate*)[UIApplication sharedApplication].delegate;
+    if ([DZAllCommon shareInstance].allServiceRespond.lastClientVersion) {
+        DZCheckUpdateRequest *request = [[DZCheckUpdateRequest alloc] init];
+        [[DZRequest shareInstance] requestWithParamter:request requestFinish:^(NSDictionary *respondDic) {
+            NSLog(@"respond:%@",respondDic);
+            DZCheckUpdateRespond *respond = [[DZCheckUpdateRespond alloc] initWithDic:respondDic[@"result"]];
+            delegateApp.respond = respond;
+            respond.desc = [respondDic[@"result"] objectForKey:@"description"];
+ 
+          NSString *number = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleShortVersionString"];
+            NSLog(@"number;%@",number);
+            
+            if (![number isEqualToString:respond.versionNumber]) {
+                NSString *cancelName = @"取消";
+                if (respond.forcedToUpgrade.boolValue) {
+                    cancelName = nil;
+                }
+                UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"" message:respond.desc delegate:delegate cancelButtonTitle:cancelName otherButtonTitles:@"升级", nil];
+                [alert show];
+            }
+        } requestFaile:^(NSString *error) {
+            
+        }];
+    }
+}
+/**
+ *  时间已过开奖时间时计算时差
+ *
+ *  @return
+ */
++(int)checkMinus{
+    //将传入时间转化成需要的格式
+    NSDateFormatter *format=[[NSDateFormatter alloc] init];
+    [format setDateFormat:@"HH:mm:ss"];
+    NSString *lastTime = [DZAllCommon shareInstance].currentLottyKind.lastTime;
+    NSArray *lastTimes = [lastTime componentsSeparatedByString:@":"];
+    NSString *firstTime = [DZAllCommon shareInstance].currentLottyKind.firstTime;
+    NSArray *firstTimes = [firstTime componentsSeparatedByString:@":"];
+    NSDate *date = [NSDate date];
+    NSString *nDateTime = [format stringFromDate:date];
+    NSArray *nDateTimes = [nDateTime componentsSeparatedByString:@":"];
+    int nIntervaleTotal = [[nDateTimes firstObject] intValue] * 60 * 60 + [nDateTimes[1] intValue] * 60 + [[nDateTimes lastObject] intValue];
+    int lastIntervaleTotal = [[lastTimes firstObject] intValue] * 60 * 60 + [lastTimes[1] intValue] * 60+ [[lastTimes lastObject] intValue];
+    int firstIntervaleTotal = [[firstTimes firstObject] intValue] * 60 * 60 + [firstTimes[1] intValue] * 60 + [[firstTimes lastObject] intValue];
+    
+    int minu = 0;
+    if (nIntervaleTotal > lastIntervaleTotal) {
+        //时间为最后一次开奖到24之间
+        minu = 24 * 60 * 60 - nIntervaleTotal + firstIntervaleTotal;
+    }else if(nIntervaleTotal < firstIntervaleTotal){
+        //00:00 到09:00
+        minu = firstIntervaleTotal - nIntervaleTotal;
+    }
+    return minu;
+}
+
 
 @end

@@ -10,5 +10,5 @@
 #import "DZAnlyesRespond.h"
 @interface DZAnlyers_DM : DZAnylesView
 //胆码
--(void)replayDM:(DZAnlyesRespond *)model;
+-(void)replayDM:(DZAnlyesRespond *)model selectedNumber:(NSString *)selectedNumber;
 @end

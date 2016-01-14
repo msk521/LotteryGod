@@ -17,6 +17,10 @@
 @property (nonatomic,strong) NSArray *selectedArr;
 //每注多少钱
 @property (nonatomic,copy) NSString *howMoney;
+//当前期数
+@property (nonatomic,copy) NSString *currentPoids;
 //是否是从查看分析结果过来的
 @property (nonatomic,assign) BOOL isLookResult;
+//数据分析条件
+@property (nonatomic,copy) NSString *anlyesStr;
 @end

@@ -81,6 +81,17 @@ typedef enum {
     }];
 }
 
+-(void)viewDidAppear:(BOOL)animated{
+    [super viewDidAppear:animated];
+        if (self.haveSelectedNumbers && self.searchDic) {
+            self.haveSelectedSource = [[NSMutableArray alloc] initWithArray:self.haveSelectedNumbers copyItems:YES];
+            self.searchResultDic = [[NSMutableDictionary alloc] initWithDictionary:self.searchDic copyItems:YES];
+            [self.tableview reloadData];
+            //执行过滤结果
+            [self doRequest:nil];
+        }
+}
+
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
@@ -117,16 +128,22 @@ typedef enum {
         case AnlyesType_LTFW:
             //龙头凤尾
         {
-            DZAnlyesRespond *respond = [self searchRespond:@"龙头凤尾"];
-            [self.ltfwView replay:respond];
+            NSString *title = @"龙头凤尾";
+            DZAnlyesRespond *respond = [self searchRespond:title];
+            NSString *selectedValue = [self searchHaveSelectedStr:title];
+           
+            [self.ltfwView replay:respond selectedNumber:selectedValue];
             anlysView = self.ltfwView;
         }
             break;
         case AnlyesType_PHZS:
             //平衡指数
         {
-            DZAnlyesRespond *respond = [self searchRespond:@"平衡指数"];
-            [self.phzsView replay:respond];
+             NSString *title = @"平衡指数";
+            DZAnlyesRespond *respond = [self searchRespond:title];
+            NSString *selectedValue = [self searchHaveSelectedStr:title];
+            
+            [self.phzsView replay:respond selectedNumber:selectedValue];
             anlysView = self.phzsView;
         }
             break;
@@ -134,8 +151,11 @@ typedef enum {
         case AnlyesType_LHGJ:
             //连号轨迹
         {
-            DZAnlyesRespond *respond = [self searchRespond:@"连号轨迹"];
-            [self.lhgjView replay:respond];
+            NSString *title = @"连号轨迹";
+            DZAnlyesRespond *respond = [self searchRespond:title];
+            NSString *selectedValue = [self searchHaveSelectedStr:title];
+
+            [self.lhgjView replay:respond selectedNumber:selectedValue];
             anlysView = self.lhgjView;
         }
             break;
@@ -194,12 +214,16 @@ typedef enum {
             DZAnlyesRespond *respond = [self searchRespond:name];
             if (sender.tag == 103) {
                 //胆码
-                [self.danmaView replayDM:respond];
-            }else if(sender.tag == 108){
-                [self.otherView replayHZ:respond];
-            }else{
+                NSString *selectedValue = [self searchHaveSelectedStr:name];
                 
-                [self.otherView replay:respond];
+                [self.danmaView replayDM:respond selectedNumber:selectedValue];
+            }else if(sender.tag == 108){
+                NSString *selectedValue = [self searchHaveSelectedStr:name];
+                
+                [self.otherView replayHZ:respond selectedNumber:selectedValue];
+            }else{
+                NSString *selectedValue = [self searchHaveSelectedStr:name];
+                [self.otherView replay:respond selectedNumber:selectedValue];
             }
                 anlysView = self.otherView;
             if (sender.tag == 103) {
@@ -272,6 +296,15 @@ typedef enum {
                 //提交
                 NSString *danmeCommitsValue = selectedRespond.commintValue;
                 NSArray *danmasCom = [danmeCommitsValue componentsSeparatedByString:@"|"];
+                
+                [self.haveSelectedSource filterUsingPredicate:[NSPredicate predicateWithBlock:^BOOL(id evaluatedObject, NSDictionary *bindings) {
+                    DZAnlyesSelectedRespond *danma = (DZAnlyesSelectedRespond *)evaluatedObject;
+                    if ([danma.selectedName isEqualToString:selectedRespond.selectedName]) {
+                        return NO;
+                    }
+                    return YES;
+                }]];
+                
                 for (int i = 0;i < danmas.count;i++) {
                     NSString *danmaValue = danmas[i];
                     DZAnlyesSelectedRespond *danma1 = [[DZAnlyesSelectedRespond alloc] init];
@@ -281,7 +314,9 @@ typedef enum {
                     danma1.commintValue = selectedRespond.commintValue;
                     danma1.selected = selectedRespond.selected;
                     danma1.commitParamter = selectedRespond.commitParamter;
+                    
                     [self.haveSelectedSource addObject:danma1];
+                    
                 }
               
             }else{
@@ -311,9 +346,21 @@ typedef enum {
     }
     return nil;
 }
+//根据名称查询
+-(NSString *)searchHaveSelectedStr:(NSString *)title{
+    for (DZAnlyesSelectedRespond *respon in self.haveSelectedSource) {
+        if ([respon.selectedName isEqualToString:title]) {
+             return respon.commintValue;
+        }
+    }
+    return nil;
+}
 
 //执行过滤
 - (IBAction)doRequest:(UIButton *)sender {
+    if (self.receivePreResult) {
+        self.receivePreResult([self.haveSelectedSource copy],[self.searchResultDic copy],[self.lookResult copy]);
+    }
     [self.searchResultDic removeAllObjects];
     for (DZAnlyesSelectedRespond *respon in self.haveSelectedSource) {
         if (respon.selected) {
@@ -380,9 +427,10 @@ typedef enum {
     DZSelectedCellTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:DZSelectedCellTableViewCell_Indentify forIndexPath:indexPath];
     __weak AnlyesSoftwarsViewController *main = self;
     cell.deleteData = ^(){
-        
         if (main.haveSelectedSource[indexPath.row]) {
             DZAnlyesSelectedRespond *selectedRespond = main.haveSelectedSource[indexPath.row];
+            if ([selectedRespond.selectedName isEqualToString:@"胆码"]) {
+
             NSString *commitValue = self.searchResultDic[[[selectedRespond.commitParamter componentsSeparatedByString:@"."] lastObject]];
             NSString *temp = [NSString stringWithFormat:@"%@|",selectedRespond.tempDanma];
             
@@ -390,21 +438,25 @@ typedef enum {
             if ([commitValue rangeOfString:temp].location != NSNotFound) {
                nCommitValue = [commitValue stringByReplacingCharactersInRange:[commitValue rangeOfString:temp] withString:@""];
                 [self.searchResultDic setObject:nCommitValue forKey:[[selectedRespond.commitParamter componentsSeparatedByString:@"."] lastObject]];
-            }else if ([commitValue rangeOfString:selectedRespond.tempDanma].location != NSNotFound) {
+            }else if (selectedRespond.tempDanma&&[commitValue rangeOfString:selectedRespond.tempDanma].location != NSNotFound) {
                 nCommitValue = [commitValue stringByReplacingCharactersInRange:[commitValue rangeOfString:selectedRespond.tempDanma] withString:@""];
                 [self.searchResultDic setObject:nCommitValue forKey:[[selectedRespond.commitParamter componentsSeparatedByString:@"."] lastObject]];
             }
-            
-            for (DZAnlyesSelectedRespond *respond in main.haveSelectedSource) {
-                if (respond.danmaValue && respond.danmaValue.length > 0) {
-                    respond.commintValue = nCommitValue;
+                
+                for (DZAnlyesSelectedRespond *respond in main.haveSelectedSource) {
+                    if (respond.danmaValue && respond.danmaValue.length > 0) {
+                        respond.commintValue = nCommitValue;
+                    }
                 }
             }
         }
-            [main.haveSelectedSource removeObjectAtIndex:indexPath.row];
-            [main.tableview deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
-        [main.tableview reloadData];
+        [main.haveSelectedSource removeObjectAtIndex:indexPath.row];
+        if (self.haveSelectedNumbers) {
+            
+        }
+        [main.tableview deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
         [self doRequest:nil];
+        [main.tableview reloadData];
      };
     [self configureCell:cell forRowAtIndexPath:indexPath];
     

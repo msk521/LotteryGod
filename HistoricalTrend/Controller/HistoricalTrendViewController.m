@@ -24,12 +24,26 @@
 @property (nonatomic,strong) DZHistoriSetting *histroiSettingView;
 @property (nonatomic,strong) DZLottySearchRequet *lastRequest;
 @property (nonatomic,strong) UIActionSheet *actionSheet;
+@property (weak, nonatomic) IBOutlet UIButton *titleButton;
 @property (nonatomic,strong) DZHistoricalBottomView *footView;
+//数据分析查看结果
+@property (nonatomic,strong) NSArray *anlyesLookResult;
+//分析查看结果提交数据
+@property (nonatomic,strong) NSDictionary *anlyesSearchResultDic;
+//数据分析已选项
+@property (nonatomic,strong) NSArray *anlyesHaveSelected;
 @end
 
 static NSString *DZHistoricalTrendCell_Indentify = @"DZHistoricalTrendCell";
 
 @implementation HistoricalTrendViewController
+-(void)viewWillAppear:(BOOL)animated{
+    [super viewWillAppear:animated];
+    DZLottyKindsRespond *current = [DZAllCommon shareInstance].currentLottyKind;
+    [self.titleButton setTitle:[NSString stringWithFormat:@"%@-历史走势",current.name] forState:UIControlStateNormal];
+    self.lastRequest = [[DZLottySearchRequet alloc] init];
+    [self refreash];
+}
 
 - (void)viewDidLoad {
     [super viewDidLoad];
@@ -37,9 +51,9 @@ static NSString *DZHistoricalTrendCell_Indentify = @"DZHistoricalTrendCell";
     self.lastRequest.pageCount = 20;
     [self registCell];
     [self initHistoriSettingView];
-    self.lastRequest = [[DZLottySearchRequet alloc] init];
+
     self.actionSheet = [[UIActionSheet alloc] initWithTitle:@"选择查询期数" delegate:self cancelButtonTitle:@"取消" destructiveButtonTitle:@"20期" otherButtonTitles:@"50期",@"100期",@"200期",@"300期", nil];
-    [self refreash];
+    
 }
 
 -(NSMutableArray *)dataSource{
@@ -114,7 +128,6 @@ static NSString *DZHistoricalTrendCell_Indentify = @"DZHistoricalTrendCell";
                 [self.dataSource addObject:advYL];
                 //最大连击
                 [self.dataSource addObject:bigLJ];
-                
             }
             [self.historyTableView reloadData];
             [self.historyTableView selectRowAtIndexPath:[NSIndexPath indexPathForRow:self.dataSource.count-1 inSection:0] animated:YES scrollPosition:UITableViewScrollPositionBottom];
@@ -131,6 +144,17 @@ static NSString *DZHistoricalTrendCell_Indentify = @"DZHistoricalTrendCell";
 //分析软件
 - (void)anlyesController{
     AnlyesSoftwarsViewController *anlyes = [self.storyboard instantiateViewControllerWithIdentifier:@"AnlyesSoftwarsViewController"];
+    anlyes.haveSelectedNumbers = self.anlyesHaveSelected;
+    anlyes.haveAnlyesResult = self.anlyesLookResult;
+    anlyes.searchDic = self.anlyesSearchResultDic;
+    anlyes.receivePreResult = ^(NSArray *haveSelected,NSDictionary *searchDic,NSArray *lookResult){
+        //数据分析查看结果
+        self.anlyesLookResult = [[NSArray alloc] initWithArray:lookResult copyItems:YES];
+        //分析查看结果提交数据
+        self.anlyesSearchResultDic = [[NSDictionary alloc] initWithDictionary:searchDic copyItems:YES];
+        //数据分析已选项
+        self.anlyesHaveSelected = [[NSArray alloc] initWithArray:haveSelected copyItems:YES];
+    };
     [self.navigationController pushViewController:anlyes animated:YES];
 }
 

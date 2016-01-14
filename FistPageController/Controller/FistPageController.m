@@ -28,13 +28,16 @@
 #import "DZLastWinNumberRespond.h"
 #import "DZMyOrderListViewController.h"
 #import "DZUserBalaceRequest.h"
+#import "DZLoginRequest.h"
+#import "DZPersonInfoMationViewController.h"
+#import "DZCheckUpdateRequest.h"
+#import "DZWinNumberView.h"
 typedef enum {
-    FPStyle_Top,
     FPStyle_Other,
     FPStyleCount
 }FPStyle;
 @interface FistPageController ()<UITableViewDelegate,UITableViewDataSource,UIAlertViewDelegate>
-@property (weak, nonatomic) IBOutlet UITableView *fpTableView;
+@property (strong, nonatomic)  UITableView *fpTableView;
 //选择城市
 @property (nonatomic,strong) DZShowChangeView *changeView;
 @property (nonatomic,strong) DZFPTop *fpTop;
@@ -42,7 +45,7 @@ typedef enum {
 @property (nonatomic,strong) MZTimerLabel *currentTimerLabel;
 @property (nonatomic,strong) NSMutableArray *citysData;
 @property (weak, nonatomic) IBOutlet UIButton *kindName;
-
+@property (nonatomic,strong) DZWinNumberView *winNumberView;
 @end
 
 static NSString *DZFPTopTableViewCell_Indentify = @"DZFPTopTableViewCell";
@@ -52,23 +55,34 @@ static NSString *DZFPOtherTableViewCell_Indentify = @"DZFPOtherTableViewCell";
 -(void)viewWillAppear:(BOOL)animated{
     [super viewWillAppear:animated];
     [self requestUserBalance];
-    [self checkRequestLastNumber];
 }
 
 -(void)checkRequestLastNumber{
-    AppDelegate *delegate = [UIApplication sharedApplication].delegate;
-    if (delegate.shouldAgainRequestWinNumber && ![DZUtile checkTime]) {
-        if (self.changeView) {
-            [self.changeView requestCitys];
-            [self.fpTableView reloadRowsAtIndexPaths:@[[NSIndexPath indexPathForRow:0 inSection:0]] withRowAnimation:UITableViewRowAnimationAutomatic];
-        }
+    [self requestLastWinNum];
+    DZUserInfoMation *userInfoMation = [DZAllCommon shareInstance].userInfoMation;
+    if (userInfoMation.account && userInfoMation.account.length > 0) {
+        DZLoginRequest *registRequest = [[DZLoginRequest alloc] init];
+        registRequest.requestApi = [DZAllCommon shareInstance].allServiceRespond.userLogin;
+        registRequest.account = userInfoMation.account;
+       registRequest.password = userInfoMation.password;
+        [[DZRequest shareInstance] requestWithParamter:registRequest requestFinish:^(NSDictionary *result) {
+            
+        } requestFaile:^(NSString *result) {
+           
+        }];
     }
 }
+
+//最后一次开奖号码
+-(void)requestLastWinNum{
+    [self.changeView lastWinNumber];
+}
+
 //获取用户金币数
 -(void)requestUserBalance{
     
     DZUserInfoMation *userInfoMation = [DZAllCommon shareInstance].userInfoMation;
-    if (!userInfoMation.idNumber || !userInfoMation.idNumber.length > 0) {
+    if (!userInfoMation.account || !userInfoMation.account.length > 0) {
         [[NSNotificationCenter defaultCenter] postNotificationName:UserBlance object:nil];
         return;
     }
@@ -93,8 +107,9 @@ static NSString *DZFPOtherTableViewCell_Indentify = @"DZFPOtherTableViewCell";
     [super viewDidLoad];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(restLottyKindName:) name:RESTLOTTYNAME object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(checkRequestLastNumber) name:UIApplicationDidBecomeActiveNotification object:nil];
-    [self registTableviewCell];
+
     [self initChangeView];
+    [self registTableviewCell];
 }
 
 //设置当前彩种名称
@@ -105,6 +120,35 @@ static NSString *DZFPOtherTableViewCell_Indentify = @"DZFPOtherTableViewCell";
 
 //初始化选择城市框
 -(void)initChangeView{
+    if (self.winNumberView == nil) {
+        CGFloat hight = 259.0f;
+        if (iPhone6) {
+            hight = 259.0f;
+        }else if (iPhone6Plus) {
+            hight = 280.0f;
+        }
+        __weak FistPageController *main = self;
+        self.winNumberView = [[[NSBundle mainBundle] loadNibNamed:@"DZWinNumberView" owner:self options:nil] firstObject];
+        self.winNumberView.currentTime = ^(MZTimerLabel *timerLabel){
+          main.currentTimerLabel = timerLabel;
+        };
+        self.winNumberView.frame = CGRectMake(0, 64, self.view.bounds.size.width, hight);
+        [self.view addSubview:self.winNumberView];
+    }
+    __weak FistPageController *weakSelf = self;
+    self.winNumberView.currentPoids = ^(NSString *currentPoids){
+        weakSelf.lstWinNum.period = currentPoids;
+    };
+    if (!self.fpTableView) {
+      AppDelegate *main =  [UIApplication sharedApplication].delegate;
+        self.fpTableView.scrollEnabled = NO;
+        self.fpTableView = [[UITableView alloc] initWithFrame:CGRectMake(0, self.winNumberView.frame.size.height+self.winNumberView.frame.origin.y-48, main.window.bounds.size.width, self.view.bounds.size.height - self.winNumberView.frame.size.height -self.winNumberView.frame.origin.y)];
+        self.fpTableView.delegate = self;
+        self.fpTableView.dataSource = self;
+        [self.fpTableView setSeparatorColor:[UIColor clearColor]];
+        [self.view addSubview:self.fpTableView];
+    }
+    
     if (self.changeView == nil) {
         AppDelegate *main = APPLICATION;
         __weak FistPageController *domain = self;
@@ -132,21 +176,21 @@ static NSString *DZFPOtherTableViewCell_Indentify = @"DZFPOtherTableViewCell";
         //改变彩种
         self.changeView.changeLottyKind = ^(DZLastWinNumberRespond *respond){
             domain.lstWinNum = respond;
-            [domain.fpTableView reloadData];
+            [domain.winNumberView replay:domain.lstWinNum];
         };
     }
 }
 
 //注册cell
 -(void)registTableviewCell{
-    [self.fpTableView registerNib:[UINib nibWithNibName:DZFPTopTableViewCell_Indentify bundle:nil] forCellReuseIdentifier:DZFPTopTableViewCell_Indentify];
+    
     [self.fpTableView registerNib:[UINib nibWithNibName:DZFPOtherTableViewCell_Indentify bundle:nil] forCellReuseIdentifier:DZFPOtherTableViewCell_Indentify];
 }
 
 //检测是否已登录
 - (IBAction)userLogin:(id)sender {
         DZUserInfoMation *userInfoMation = [DZAllCommon shareInstance].userInfoMation;
-    if (!userInfoMation.idNumber || !userInfoMation.idNumber.length > 0) {
+    if (!userInfoMation.account || !userInfoMation.account.length > 0) {
         DZLoginViewController *loginView = [self.storyboard instantiateViewControllerWithIdentifier:@"DZLoginViewController"];
         [DZUtile showLoginViewController:loginView animation:YES finishLoading:^{
             
@@ -154,7 +198,7 @@ static NSString *DZFPOtherTableViewCell_Indentify = @"DZFPOtherTableViewCell";
             
         }];
     }else{
-        DZPersonInfoViewController *personInfo = [self.storyboard instantiateViewControllerWithIdentifier:@"DZPersonInfoViewController"];
+        DZPersonInfoMationViewController *personInfo = [self.storyboard instantiateViewControllerWithIdentifier:@"DZPersonInfoMationViewController"];
         [self.navigationController pushViewController:personInfo animated:YES];
     }
 }
@@ -179,15 +223,9 @@ static NSString *DZFPOtherTableViewCell_Indentify = @"DZFPOtherTableViewCell";
 - (UITableViewCell *)tableView:(UITableView *)tableView
          cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    if (indexPath.row ==  FPStyle_Top) {
-        DZFPTopTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:DZFPTopTableViewCell_Indentify forIndexPath:indexPath];
-        [self configureCell:cell forRowAtIndexPath:indexPath];
-        cell.currentTime = ^(MZTimerLabel *timer){
-            self.currentTimerLabel = timer;
-        };
-        return cell;
-    }else{
+
         DZFPOtherTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:DZFPOtherTableViewCell_Indentify forIndexPath:indexPath];
+    
         cell.jumpToController = ^(int tag){
             switch (tag) {
                 case 100:
@@ -291,19 +329,9 @@ static NSString *DZFPOtherTableViewCell_Indentify = @"DZFPOtherTableViewCell";
             }
         };
         return cell;
-    }
 }
 
 -(CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath{
-      if (indexPath.row ==  FPStyle_Top) {
-          if (iPhone6) {
-              return 250;
-          }
-          if (iPhone6Plus) {
-              return 280;
-          }
-          return 212.0f;
-      }else{
           if (iPhone6) {
               return 200;
           }
@@ -311,7 +339,6 @@ static NSString *DZFPOtherTableViewCell_Indentify = @"DZFPOtherTableViewCell";
               return 230;
           }
           return 158.0f;
-      }
 }
 
 //初始化topcell

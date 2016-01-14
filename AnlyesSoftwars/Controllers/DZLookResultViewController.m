@@ -80,11 +80,12 @@
             channel = @"wx";
         } else if (buttonIndex == 1) {
             channel = @"alipay";
-        } else if (buttonIndex == 2) {
-            channel = @"upacp";
         }
         [self payAction:channel];
     }
+//    else if (buttonIndex == 2) {
+//        channel = @"upacp";
+//    }
 }
 
 -(void)payAction:(NSString *)channelValue{

@@ -97,13 +97,40 @@ static NSString *const DZDanMaTableViewCell_Indentify = @"DZDanMaTableViewCell";
 }
 
 //胆码
--(void)replayDM:(DZAnlyesRespond *)model{
+-(void)replayDM:(DZAnlyesRespond *)model selectedNumber:(NSString *)selectedNumber{
     selectedDanmaNumbers1 = [[NSMutableArray alloc] init];
     selectedDanmaNumbers2 = [[NSMutableArray alloc] init];
     selectedDanmaNumbers3 = [[NSMutableArray alloc] init];
-    selectedDanmaNumbersCount1 = [[NSMutableArray alloc] init];;
-    selectedDanmaNumbersCount2 = [[NSMutableArray alloc] init];;
-    selectedDanmaNumbersCount3 = [[NSMutableArray alloc] init];;
+    selectedDanmaNumbersCount1 = [[NSMutableArray alloc] init];
+    selectedDanmaNumbersCount2 = [[NSMutableArray alloc] init];
+    selectedDanmaNumbersCount3 = [[NSMutableArray alloc] init];
+    if (selectedNumber) {
+        NSArray *danmaSelected = [selectedNumber componentsSeparatedByString:@"|"];
+        for (int i = 0; i < danmaSelected.count;i++) {
+            NSString *danma = danmaSelected[i];
+            NSArray *danmaStr = [danma componentsSeparatedByString:@","];
+            NSMutableArray *seletedDanma = selectedDanmaNumbers1;
+            NSMutableArray *seletedDanmaCount = selectedDanmaNumbersCount1;
+            if (i == 1){
+                seletedDanma = selectedDanmaNumbers2;
+                seletedDanmaCount = selectedDanmaNumbersCount2;
+            }else if ( i == 2){
+                seletedDanma = selectedDanmaNumbers3;
+                seletedDanmaCount = selectedDanmaNumbersCount3;
+            }
+            [danmaStr enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+                NSString *objStr = (NSString *)obj;
+                if ([objStr rangeOfString:@"danmaCount"].location != NSNotFound) {
+                    [seletedDanmaCount addObject:objStr];
+                }else{
+                        [seletedDanma addObject:objStr];
+                }
+            }];
+
+        }
+    }
+    
+    
     currentModel = model;
     self.tableview.delegate = self;
     self.tableview.dataSource = self;

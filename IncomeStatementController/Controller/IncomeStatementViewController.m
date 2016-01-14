@@ -172,6 +172,11 @@
     UILabel *amount = (UILabel *)[cell viewWithTag:101];
     NSString *fh = income.action.intValue > 0? @"+":@"-";
     amount.text = [NSString stringWithFormat:@"%@%@",fh,income.amount];
+    amount.textColor = [UIColor blackColor];
+    if (income.action.intValue > 0) {
+        amount.textColor = [UIColor redColor];
+    }
+    
     //余额
     UILabel *balance = (UILabel *)[cell viewWithTag:102];
     balance.text = income.balance;
@@ -180,7 +185,9 @@
     time.text = income.time;
 }
 
-
+-(NSIndexPath *)tableView:(UITableView *)tableView willSelectRowAtIndexPath:(NSIndexPath *)indexPath{
+    return nil;
+}
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.

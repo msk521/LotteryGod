@@ -30,4 +30,6 @@
 @property (nonatomic,copy) NSString *balance;
 //积分
 @property (nonatomic,copy) NSString *score;
+//密码
+@property (nonatomic,copy) NSString *password;
 @end

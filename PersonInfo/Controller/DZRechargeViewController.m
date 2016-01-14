@@ -32,7 +32,7 @@
         return;
     }
     self.money = moneyText.text;
-    channelActionSheet = [[UIActionSheet alloc] initWithTitle:nil delegate:self cancelButtonTitle:@"取消" destructiveButtonTitle:@"微信" otherButtonTitles:@"支付宝",@"银联", nil];
+    channelActionSheet = [[UIActionSheet alloc] initWithTitle:nil delegate:self cancelButtonTitle:@"取消" destructiveButtonTitle:@"支付宝" otherButtonTitles:nil, nil];
     channelActionSheet.delegate = self;
     channelActionSheet.tag = 100;
     [channelActionSheet showInView:self.view];
@@ -74,16 +74,23 @@
 
 #pragma mark---UIActionDelegate
 -(void)actionSheet:(UIActionSheet *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex{
-    
-    if (buttonIndex == 0) {
-        channel = @"wx";
-    } else if (buttonIndex == 1) {
-        channel = @"alipay";
-    } else if (buttonIndex == 2) {
-        channel = @"upacp";
-    }else{
-        return;
-    }
+
+        if (buttonIndex == 0) {
+            channel = @"alipay";
+        } else{
+            return;
+        }
+
+//    if (buttonIndex == 0) {
+//        channel = @"wx";
+//    } else if (buttonIndex == 1) {
+//        channel = @"alipay";
+//    } else{
+//        return;
+//    }
+    //else if (buttonIndex == 2) {
+//    channel = @"upacp";
+//}
     [self payAction:channel];
 }
 

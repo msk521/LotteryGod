@@ -7,6 +7,7 @@
 //
 
 #import "AppDelegate.h"
+#import "DZCheckUpdateRequest.h"
 #import <Pingpp.h>
 @interface AppDelegate ()
 
@@ -16,7 +17,7 @@
 
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
-   
+    self.selectedAnlyes = [[NSMutableSet alloc] init];
     return YES;
 }
 
@@ -46,7 +47,6 @@
     NSUserDefaults *defaulters = [NSUserDefaults standardUserDefaults];
     DZUserInfoMation *userInfoMation = [DZAllCommon shareInstance].userInfoMation;
     if (userInfoMation) {
-        [DZUtile showAlertViewWithMessage:@"退出成功"];
         NSData *data =  [NSKeyedArchiver archivedDataWithRootObject:userInfoMation];
         [defaulters setObject:data forKey:@"UserInfo"];
     }
@@ -60,7 +60,7 @@
 }
 
 - (void)applicationDidBecomeActive:(UIApplication *)application {
-    
+    [DZUtile checkVersion:self];
     NSUserDefaults *defaulters = [NSUserDefaults standardUserDefaults];
     NSData *data = [defaulters objectForKey:@"UserInfo"];
     if (data) {
@@ -82,4 +82,16 @@
     // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
 }
 
+#pragma mark---UIAlertViewDelegate
+-(void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex{
+    NSString *title =  [alertView buttonTitleAtIndex:buttonIndex];
+    if ([title isEqualToString:@"升级"]) {
+        AppDelegate *delegate = (AppDelegate *)[UIApplication sharedApplication].delegate;
+        NSString *updateURL = delegate.respond.itmsServicesUrl;
+        if (!updateURL) {
+            updateURL = UPDATEURL;
+        }
+        [[UIApplication sharedApplication] openURL:[NSURL URLWithString:updateURL]];
+    }
+}
 @end

@@ -84,4 +84,15 @@ typedef  void (^LoadingLogingControllerFinished) ();
  *  @return
  */
 +(BOOL)checkTime;
+
+/**
+ *  检测升级
+ */
++(void)checkVersion:(id)delegate;
+/**
+ *  时间已过开奖时间时计算时差
+ *
+ *  @return
+ */
++(int)checkMinus;
 @end

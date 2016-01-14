@@ -12,4 +12,6 @@
 @property (nonatomic,strong) DZLastWinNumberRespond *currentRespond;
 //剩余倒计时
 @property (nonatomic,assign)int  resetTimer;
+//分析条件
+@property (nonatomic,copy) NSString *anlyesStr;
 @end

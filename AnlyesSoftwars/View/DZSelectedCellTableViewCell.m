@@ -7,6 +7,7 @@
 //
 
 #import "DZSelectedCellTableViewCell.h"
+#import "AppDelegate.h"
 @interface DZSelectedCellTableViewCell(){
     
     __weak IBOutlet UILabel *selectedName;
@@ -40,6 +41,15 @@
     if (respond.danmaValue && respond.danmaValue.length > 0) {
         selectedName.text = [NSString stringWithFormat:@"%@: %@",respond.selectedName,respond.danmaValue];
     }
+    AppDelegate *main = (AppDelegate *)[UIApplication sharedApplication].delegate;
+    [main.selectedAnlyes enumerateObjectsUsingBlock:^(id obj, BOOL *stop) {
+        NSString *objStr = (NSString *)obj;
+        if ([objStr rangeOfString:respond.selectedName].location != NSNotFound) {
+            *stop = YES;
+            [main.selectedAnlyes removeObject:obj];
+        }
+    }];
+    [main.selectedAnlyes addObject:selectedName.text];
 }
 
 //选择

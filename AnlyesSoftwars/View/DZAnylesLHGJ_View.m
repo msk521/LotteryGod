@@ -19,7 +19,11 @@
 @end
 @implementation DZAnylesLHGJ_View
 
--(void)replay:(DZAnlyesRespond *)model{
+-(void)replay:(DZAnlyesRespond *)model selectedNumber:(NSString *)selectedNumber{
+    NSArray *haveselected = nil;
+    if (selectedNumber) {
+        haveselected = [selectedNumber componentsSeparatedByString:@","];
+    }
     selectedNames = [[NSMutableArray alloc] init];
     selectedNumbers = [[NSMutableArray alloc] init];
     self.selectedAnlyesName = model.name;
@@ -58,6 +62,9 @@
             [button setBackgroundImage:[UIImage imageNamed:@"circle"] forState:UIControlStateNormal];
             [button setTitle:value forState:UIControlStateNormal];
             [anlyesView addSubview:button];
+            if (selectedNumber && haveselected && [haveselected containsObject:key]) {
+                [self selectedNumber:button];
+            }
         }
     }
 }

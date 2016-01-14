@@ -12,4 +12,8 @@
 @property (nonatomic,strong) NSArray *searchResultArr;
 //模式
 @property (nonatomic,copy) NSString *parent;
+/**
+ *  分析条件
+ */
+@property (nonatomic,copy) NSString *anlyesStr;
 @end

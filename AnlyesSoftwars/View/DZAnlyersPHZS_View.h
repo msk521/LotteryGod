@@ -10,5 +10,5 @@
 #import "DZAnlyesRespond.h"
 @interface DZAnlyersPHZS_View : DZAnylesView
 @property (nonatomic,copy) NSString *phzsNames;
--(void)replay:(DZAnlyesRespond *)model;
+-(void)replay:(DZAnlyesRespond *)model selectedNumber:(NSString *)selectedNumber;
 @end

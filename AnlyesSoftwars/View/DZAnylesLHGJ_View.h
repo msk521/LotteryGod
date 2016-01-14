@@ -10,5 +10,5 @@
 #import "DZAnlyesRespond.h"
 @interface DZAnylesLHGJ_View : DZAnylesView
 @property (nonatomic,copy) NSString *lhgjName;
--(void)replay:(DZAnlyesRespond *)model;
+-(void)replay:(DZAnlyesRespond *)model selectedNumber:(NSString *)selectedNumber;
 @end

@@ -45,6 +45,7 @@
     //当前多少期
     __weak IBOutlet UILabel *currentPoidsLabel;
     AppDelegate *delegate;
+    __weak IBOutlet UILabel *mybalance;
 }
 @end
 @implementation DZFPTopTableViewCell
@@ -59,22 +60,6 @@
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(resetUserBalance) name:UserBlance object:nil];
     dateFormatter = [[NSDateFormatter alloc] init];
     [dateFormatter setDateFormat:@"mm:dd"];
-    
-    nextTime.layer.cornerRadius = 5.0f;
-    nextTime.layer.masksToBounds = YES;
-    moneyLabel = [[UILabel alloc] init];
-    moneyLabel.frame = CGRectMake(moneyName.frame.origin.x+ moneyName.frame.size.width + 10, moneyName.frame.origin.y, 80, 21);
-    moneyLabel.textColor = COLOR(196, 0, 19);
-    moneyLabel.font = [UIFont systemFontOfSize:13.0f];
-    moneyLabel.textAlignment = NSTextAlignmentCenter;
-    [self.contentView addSubview:moneyLabel];
-    moneyUtil = [[UILabel alloc] init];
-    moneyUtil.textAlignment = NSTextAlignmentCenter;
-    moneyUtil.frame = CGRectMake(moneyLabel.frame.origin.x+moneyLabel.frame.size.width , moneyLabel.frame.origin.y, 20, 21);
-    moneyUtil.font = [UIFont boldSystemFontOfSize:13.0f];
-    moneyUtil.hidden = YES;
-    moneyUtil.text = @"点";
-    [self.contentView addSubview:moneyUtil];
 }
 
 -(void)resetTimer:(NSInteger)minus{
@@ -93,6 +78,7 @@
         minusTime = intervalTime;
     }
     [timerExample3 setCountDownTime:minusTime];
+
     [timerExample3 start];
 }
 
@@ -115,7 +101,7 @@
     DZLastWinNumberRequest *lastRequest = [[DZLastWinNumberRequest alloc] init];
     NSInteger intervalTime = [DZAllCommon shareInstance].currentLottyKind.intervalTime.intValue;
 
-    [hud show:YES];
+//    [hud show:YES];
     int64_t delayInSeconds = 2.0;
     dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, delayInSeconds * NSEC_PER_SEC);
     dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
@@ -123,6 +109,7 @@
             [[DZRequest shareInstance] requestWithParamter:lastRequest requestFinish:^(NSDictionary *result) {
                 NSDictionary *dic = result[@"result"];
                 if (dic) {
+                   
                     AppDelegate *delegae = [UIApplication sharedApplication].delegate;
                     delegae.shouldAgainRequestWinNumber = NO;
                     DZLastWinNumberRespond *respond = [[DZLastWinNumberRespond alloc] initWithDic:dic];
@@ -130,7 +117,8 @@
                         currentFP = respond;
                         [self resetWinNumbers:respond];
                         NSInteger minus = [DZUtile requestTimeMinusWith:currentFP.receiveTime];
-                        [timerExample3 setCountDownTime:intervalTime -minus];
+                        [timerLabel setCountDownTime:intervalTime -minus];
+                        NSAssert(timerLabel != nil, @"倒计时出错");
                         [timerLabel start];
                         cycleNum = -1;
                         currentPoidsLabel.text = [NSString stringWithFormat:@"第%@期",currentFP.period];
@@ -139,6 +127,7 @@
                         [hud hide:YES];
                         [[NSNotificationCenter defaultCenter] postNotificationName:@"restarTime" object:nil];
                     }else{
+                        NSAssert(timerLabel != nil, @"倒计时出错");
                         [self requestLastNumber:timerLabel];
                     }
                 }
@@ -182,7 +171,6 @@
         NSArray *nextNumbers = [self changeToNextWinNum:winNum nWinNums:nWinNumValue];
         //通知主线程刷新
         dispatch_async(dispatch_get_main_queue(), ^{
-            
             if (i == 0) {
                 [self showAnimationWithImageView:ball1 nextNumbers:nextNumbers];
             }else if (i == 1){
@@ -207,7 +195,7 @@
 
     [imageView setAnimationImages:nextNumbers];
     
-    imageView.animationDuration = 1.0;
+    imageView.animationDuration = 2.0;
     // repeat the annimation forever
     imageView.animationRepeatCount = 1;
     // start animating
@@ -223,12 +211,11 @@
         UIImageView *imgView = (UIImageView*)[self viewWithTag:100 + i];
         imgView.image = [UIImage imageNamed:[NSString stringWithFormat:@"ball%d",[winNumbers[i] intValue]]];
     }
-    
+       [self resetUserBalance];
     if (![DZUtile checkTime]) {
         [hud setHidden:YES];
         NSInteger minus = [DZUtile requestTimeMinusWith:currentFP.receiveTime];
         [self resetTimer:minus];
-        [self resetUserBalance];
     }
 }
 
@@ -237,49 +224,34 @@
 -(void)resetBalance{
     DZUserInfoMation *userInfoMation = [DZAllCommon shareInstance].userInfoMation;
     if (userInfoMation.balance && userInfoMation.score) {
-        moneyLabel.text = userInfoMation.balance;
+        NSString *balanceStr = [NSString stringWithFormat:@"%@点",userInfoMation.balance];
+        NSMutableAttributedString *attributedStr = [[NSMutableAttributedString alloc]initWithString:balanceStr];
+        UIColor *color = [UIColor blackColor];
+        
+        NSDictionary *attributeDict = [NSDictionary dictionaryWithObjectsAndKeys:
+                                       color,NSForegroundColorAttributeName,nil];
+        [attributedStr addAttributes:attributeDict range:NSMakeRange(balanceStr.length-1,1)];
+        mybalance.attributedText = attributedStr;
         userRange.text = userInfoMation.score;
-    }
+    } 
 }
+
 -(void)resetUserBalance{
 
     DZUserInfoMation *userInfoMation = [DZAllCommon shareInstance].userInfoMation;
     
     if (userInfoMation.balance && userInfoMation.score) {
-        moneyLabel.text = userInfoMation.balance;
+        NSString *balanceStr = [NSString stringWithFormat:@"%@点",userInfoMation.balance];
+        NSMutableAttributedString *attributedStr = [[NSMutableAttributedString alloc]initWithString:balanceStr];
+        UIColor *color = [UIColor blackColor];
+        
+        NSDictionary *attributeDict = [NSDictionary dictionaryWithObjectsAndKeys:
+                                       color,NSForegroundColorAttributeName,nil];
+        [attributedStr addAttributes:attributeDict range:NSMakeRange(balanceStr.length-1,1)];
+        mybalance.attributedText = attributedStr;
         userRange.text = userInfoMation.score;
-        
-        NSDictionary *attribute = @{NSFontAttributeName:moneyLabel.font};
-        CGSize retSize = [userInfoMation.balance boundingRectWithSize:CGSizeMake(0, 10000)
-                                                              options:
-                          NSStringDrawingTruncatesLastVisibleLine |
-                          NSStringDrawingUsesLineFragmentOrigin |
-                          NSStringDrawingUsesFontLeading
-                                                           attributes:attribute
-                                                              context:nil].size;
-        CGRect nameLabelRect = moneyLabel.frame;
-        nameLabelRect.size.width = retSize.width;
-        
-        CGFloat orginx = nameLabelRect.origin.x + nameLabelRect.size.width + 5;
-        if (orginx + moneyUtil.frame.size.width <= userRange.frame.origin.x - 62) {
-            float add = 0.0f;
-            if (iPhone6) {
-                add = 250 - 212;
-            }
-            if (iPhone6Plus) {
-                add = 280 - 212;
-                
-            }
-            if (moneyUtil.hidden) {
-                nameLabelRect.origin.y += add;
-            }
-            
-            moneyLabel.frame = nameLabelRect;
-            moneyUtil.frame = CGRectMake(orginx,nameLabelRect.origin.y , moneyUtil.frame.size.width, moneyUtil.frame.size.height);
-        }
-        moneyUtil.hidden = NO;
     }else{
-        moneyLabel.text = @"";
+        mybalance.text = @"";
         userRange.text = @"";
     }
 }

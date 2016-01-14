@@ -13,6 +13,7 @@
 #import "DZUpdateUserPasswordViewController.h"
 #import "DZGetMoneyViewController.h"
 #import "DZGetMoneyRecordViewController.h"
+#import "DZLoginOutRequest.h"
 typedef enum {
     UserTopGroup_UserInfo,
     UserOtherGroup_Password,
@@ -247,16 +248,46 @@ typedef enum {
 
 //登出
 - (IBAction)loginOurt:(UIButton *)sender {
-    NSUserDefaults *defaulters = [NSUserDefaults standardUserDefaults];
     DZUserInfoMation *userInfoMation = [DZAllCommon shareInstance].userInfoMation;
-    if (userInfoMation) {
-        [defaulters removeObjectForKey:@"UserInfo"];
-        [self.navigationController popViewControllerAnimated:YES];
-    }else{
+    if (!userInfoMation) {
         [DZUtile showAlertViewWithMessage:@"您还未登录"];
         return;
     }
-    [defaulters synchronize];
+
+    DZLoginOutRequest *request = [[DZLoginOutRequest alloc] init];
+    [[DZRequest shareInstance] requestWithParamter:request requestFinish:^(NSDictionary *respond) {
+        if ([respond[@"success"] intValue] == 1) {
+            //登出成功
+            NSUserDefaults *defaulters = [NSUserDefaults standardUserDefaults];
+            DZUserInfoMation *userInfoMation = [DZAllCommon shareInstance].userInfoMation;
+            if (userInfoMation) {
+                [defaulters removeObjectForKey:@"UserInfo"];
+                [DZAllCommon shareInstance].userInfoMation = nil;
+                self.hud.mode = MBProgressHUDModeText;
+                self.hud.labelText = @"退出成功";
+             
+                [defaulters removeObjectForKey:@"UserBankInfo"];
+             
+                [self.hud show:YES];
+                [self.hud hide:YES afterDelay:1.0f];
+                [self performSelector:@selector(showLogin) withObject:nil afterDelay:1.0f];
+                 [defaulters synchronize];
+            }
+        }
+    } requestFaile:^(NSString *error) {
+        
+    }];
+}
+//显示登录
+-(void)showLogin{
+    DZLoginViewController *loginView = [self.storyboard instantiateViewControllerWithIdentifier:@"DZLoginViewController"];
+    [DZUtile showLoginViewController:loginView animation:YES finishLoading:^{
+        DZGetMoneyRecordViewController *charge = [self.storyboard instantiateViewControllerWithIdentifier:@"DZGetMoneyRecordViewController"];
+        [self.navigationController pushViewController:charge animated:YES];
+    }hiddenFinish:^{
+        
+    }];
+
 }
 
 - (void)didReceiveMemoryWarning {

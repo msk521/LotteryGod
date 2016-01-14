@@ -63,8 +63,9 @@
     UIColor *redColor = COLOR(245, 74, 53);
     UIColor *bluColor = COLOR(234, 180, 60);
     UIColor *yellowColor = COLOR(65,149,222);
-     UILabel *labtemp = (UILabel *)[self viewWithTag:200];
+    UILabel *labtemp = (UILabel *)[self viewWithTag:200];
     int hight = labtemp.frame.origin.y - muchNumber.frame.origin.y - muchNumber.frame.size.height * 2;
+    int avNum = totlaNum*5 / 11.0f ;
     for (int i = 0; i < percents.count; i++) {
         UILabel *lab = (UILabel *)[self viewWithTag:200 + i];
         NSString *nums = [NSString stringWithFormat:@"%d",(int)[percents[@(i+1)] count]];
@@ -75,9 +76,10 @@
         lab.frame = rect;
         if (lab) {
             if (lab) {
-                if (totlaNum - nums.intValue < 10) {
+
+                if (nums.intValue > avNum) {
                     lab.backgroundColor = redColor;
-                }else if ( 10 <totlaNum - nums.intValue && totlaNum - nums.intValue < 15){
+                }else if (nums.intValue < avNum && nums.intValue > avNum - 10){
                     lab.backgroundColor = yellowColor;
                 }else{
                      lab.backgroundColor = bluColor;
@@ -85,7 +87,7 @@
             }
         }
         UILabel *num = [[UILabel alloc] initWithFrame:CGRectMake(lab.frame.origin.x, lab.frame.origin.y - 10, lab.frame.size.width, 10)];
-        num.font = [UIFont systemFontOfSize:10];
+        num.font = [UIFont systemFontOfSize:9];
         num.textAlignment = NSTextAlignmentCenter;
         num.text = nums;
         num.tag = 300+i;

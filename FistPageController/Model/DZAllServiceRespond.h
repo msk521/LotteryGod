@@ -40,6 +40,16 @@
 @property (nonatomic,copy) NSString *userWithdrawalsApply;
 //获取二维码
 @property (nonatomic,copy) NSString *qrcode;
+//检查版本号升级
+@property (nonatomic,copy) NSString *lastClientVersion;
+//登出
+@property (nonatomic,copy) NSString *userLogout;
+//订单详情
+@property (nonatomic,copy) NSString *lotteryOrderDetails;
+//投注详情
+@property (nonatomic,copy) NSString *lotteryOrderDetailNumbers;
+//忘记密码
+@property (nonatomic,copy) NSString *userForgetPassword;
 @end
 
 

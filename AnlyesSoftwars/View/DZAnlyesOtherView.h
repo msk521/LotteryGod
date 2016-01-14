@@ -9,9 +9,7 @@
 #import "DZAnylesView.h"
 #import "DZAnlyesRespond.h"
 @interface DZAnlyesOtherView : DZAnylesView
--(void)replay:(DZAnlyesRespond *)model;
-//胆码
--(void)replayDM:(DZAnlyesRespond *)model;
+-(void)replay:(DZAnlyesRespond *)model selectedNumber:(NSString *)selectedNumber;
 //和值
--(void)replayHZ:(DZAnlyesRespond *)model;
+-(void)replayHZ:(DZAnlyesRespond *)model selectedNumber:(NSString *)selectedNumber;
 @end

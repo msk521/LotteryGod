@@ -9,6 +9,8 @@
 #import "DZGetMoneyViewController.h"
 #import "DZGetMoneyRequest.h"
 #import "DZBanksView.h"
+#import "DZGetMoneyRecordViewController.h"
+#import "DZUserBalaceRequest.h"
 @interface DZGetMoneyViewController ()<UITextFieldDelegate>
 @property (weak, nonatomic) IBOutlet UITextView *aboutGetMoney;
 @property (weak, nonatomic) IBOutlet UITextField *bankNumber;
@@ -30,6 +32,13 @@
     self.surplusLabel.text = [DZAllCommon shareInstance].userInfoMation.balance;
     self.dataSource = @[@"工商银行",@"农业银行",@"中国银行",@"建设银行",@"交通银行",@"华夏银行",@"光大银行",@"招商银行",@"中信银行",@"兴业银行",@"民生银行",@"深圳发展银行",@"广东发展银行",@"上海浦东发展银行",@"渤海银行",@"恒丰银行",@"浙商银行",@"中国邮政储蓄银行"];
     self.aboutGetMoney.text = @"提现规则:\n提现时间:每周一到周五,9:30-17:00实时处理，周六周日提现顺延至下一个工作日进行处理\n到帐时间:\n提现时间内提现审核通过后，24小时之内到账\n提现限额:单笔提现最小限额10元，最大限额10000元\n提示:充值后24小时内不支持提现，为防止他人盗刷银行卡";
+    NSUserDefaults *defaulterf = [NSUserDefaults standardUserDefaults];
+    NSDictionary *userInfo = [defaulterf objectForKey:@"UserBankInfo"];
+    if (userInfo) {
+        [self.selectedBankKind setTitle:userInfo[@"bankName"] forState:UIControlStateNormal];
+        self.bankCardUserName.text = userInfo[@"bankUserName"];
+        self.bankNumber.text = userInfo[@"bankNumber"];
+    }
 }
 
 //选择银行
@@ -68,6 +77,12 @@
     }];
 }
 
+//提现记录
+- (IBAction)receiveMoneyRecord:(UIButton *)sender {
+    DZGetMoneyRecordViewController *charge = [self.storyboard instantiateViewControllerWithIdentifier:@"DZGetMoneyRecordViewController"];
+    [self.navigationController pushViewController:charge animated:YES];
+}
+
 -(void)hiddenView{
     [UIView animateWithDuration:0.3f animations:^{
         self.banksView.frame = CGRectMake(0, self.view.bounds.size.height, self.view.bounds.size.width, self.banksView.frame.size.height);
@@ -80,6 +95,7 @@
 - (IBAction)applyMoney:(UIButton *)sender {
     [self.view endEditing:YES];
     [self hiddenView];
+    NSString *myMoney = [self.surplusLabel.text stringByReplacingOccurrencesOfString:@"," withString:@""];
     NSString *woring = @"";
     if ([[self.selectedBankKind titleForState:UIControlStateNormal] isEqualToString:@"选择银行"]) {
         woring = @"请选择银行";
@@ -89,7 +105,8 @@
         woring = @"请输入银行卡号";
     }else if (self.moenyField.text.intValue < 10) {
         woring = @"最小提现金额为10元";
-    }else if (self.surplusLabel.text.intValue < self.moenyField.text.intValue){
+    }else if (myMoney.intValue < self.moenyField.text.intValue){
+    
         woring = @"余额不足";
     }else if (self.moenyField.text.intValue > 10000){
         woring = @"单笔提现最大金额不能超过10000元";
@@ -108,7 +125,8 @@
     [[DZRequest shareInstance] requestWithParamter:moneyRequest requestFinish:^(NSDictionary *result) {
         if ([result[@"success"] intValue] == 1) {
             [DZUtile showAlertViewWithMessage:result[@"result"]];
-            [self.navigationController popViewControllerAnimated:YES];
+            [self saveUserNameBankNameBankNumber];
+            [self requestUserBalance];
         }else{
             [DZUtile showAlertViewWithMessage:result[@"errorMessage"]];
         }
@@ -116,6 +134,43 @@
         
     }];
 }
+/**
+ *  提现申请成功之后保存最后一次记录
+ *
+ *  @param userName   提现人名称
+ *  @param bankName   提现银行名称
+ *  @param bankNumber 提现银行卡号
+ */
+-(void)saveUserNameBankNameBankNumber{
+    NSUserDefaults *defaulters = [NSUserDefaults standardUserDefaults];
+    NSDictionary *dic = [NSDictionary dictionaryWithObjectsAndKeys:[self.selectedBankKind titleForState:UIControlStateNormal],@"bankName",self.bankCardUserName.text,@"bankUserName",self.bankNumber.text,@"bankNumber", nil];
+    [defaulters setObject:dic forKey:@"UserBankInfo"];
+    [defaulters synchronize];
+}
+
+//获取用户金币数
+-(void)requestUserBalance{
+    if (![DZAllCommon shareInstance].userInfoMation.account || [DZAllCommon shareInstance].userInfoMation.account.length == 0) {
+        return;
+    }
+    
+    DZUserBalaceRequest *request = [[DZUserBalaceRequest alloc] init];
+    [[DZRequest shareInstance] requestWithParamter:request requestFinish:^(NSDictionary *result) {
+        
+        if (result[@"result"] && [result[@"success"] intValue] != 0) {
+            NSDictionary *resultDic = result[@"result"];
+            DZUserInfoMation *userInfoMation = [DZAllCommon shareInstance].userInfoMation;
+            userInfoMation.balance = resultDic[@"balance"];
+            userInfoMation.score = resultDic[@"score"];
+            [DZUtile saveData];
+            [[NSNotificationCenter defaultCenter] postNotificationName:UserBlance object:nil];
+            [self.navigationController popViewControllerAnimated:YES];
+        }
+    } requestFaile:^(NSString *result) {
+        
+    }];
+}
+
 
 //隐藏键盘
 - (IBAction)hiddenKeyBoard:(UIButton *)sender {

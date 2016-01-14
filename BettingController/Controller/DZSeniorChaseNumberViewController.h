@@ -21,6 +21,8 @@
 @property (nonatomic,copy) NSString *totalMoney;
 //共选多少注
 @property (nonatomic,assign) int totalCount;
+//当前期数
+@property (nonatomic,copy) NSString *currentPoids;
 //所选号码
 @property (nonatomic,strong) NSArray *selectedArr;
 @end

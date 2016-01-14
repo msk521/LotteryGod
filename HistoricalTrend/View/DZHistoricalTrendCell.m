@@ -11,8 +11,11 @@
 #import "AppDelegate.h"
 #import "MZTimerLabel.h"
 @interface DZHistoricalTrendCell(){
-    MZTimerLabel *timerExample3;
+    
 }
+@property (nonatomic,strong) MZTimerLabel *timerExample3;
+@property (nonatomic,strong) MZTimerLabel *timerExample4;
+
 @end
 @implementation DZHistoricalTrendCell
 
@@ -201,32 +204,91 @@
     }
     CGRect frame = [UIScreen mainScreen].bounds;
     float with = frame.size.width/ 12;
-    UILabel *timeLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, frame.size.width, with)];
-    timeLabel.textColor = COLOR(153, 153, 153);
+    UILabel *timeLabel = [[UILabel alloc] initWithFrame:CGRectMake(10, 0, frame.size.width/2, with)];
+    timeLabel.textColor = COLOR(80, 80, 80);
     timeLabel.font = [UIFont systemFontOfSize:13.0f];
     [self resetTimer:dataSource.intValue label:timeLabel];
-    timeLabel.textAlignment = NSTextAlignmentCenter;
+    timeLabel.textAlignment = NSTextAlignmentLeft;
     [self.contentView addSubview:timeLabel];
+    
+    UILabel *lastTimeLabel = [[UILabel alloc] initWithFrame:CGRectMake(frame.size.width/2-20, 0, frame.size.width/2, with)];
+    lastTimeLabel.textColor = COLOR(80, 80, 80);
+    lastTimeLabel.font = [UIFont systemFontOfSize:13.0f];
+    [self touzhuTimer:dataSource.intValue label:lastTimeLabel];
+    lastTimeLabel.textAlignment = NSTextAlignmentRight;
+    [self.contentView addSubview:lastTimeLabel];
+}
+
+//投注剩余倒计时
+-(void)touzhuTimer:(int)sec label:(UILabel *)lastTime{
+    AppDelegate *main = [UIApplication sharedApplication].delegate;
+    self.timerExample4 = [[MZTimerLabel alloc] initWithLabel:lastTime andTimerType:MZTimerLabelTypeTimer];
+    if (sec > MINUES) {
+        [self.timerExample4 setCountDownTime:sec-MINUES];
+    }else{
+        [self.timerExample4 setCountDownTime:0];
+    }
+
+    self.timerExample4.timeFormat = @"剩余投注时间 mm分ss秒 ";
+    if (main.shouldAgainRequestWinNumber) {
+        NSInteger minus = [DZUtile checkMinus];
+        if (minus <= 600) {
+            self.timerExample4.timeFormat = @" 剩余投注时间 mm分ss秒 ";
+        }else{
+            self.timerExample4.timeFormat = @" 剩余开奖时间 hh时mm分ss秒 ";
+        }
+        if (minus > MINUES) {
+            [self.timerExample4 setCountDownTime:minus - MINUES];
+        }else{
+            [self.timerExample4 setCountDownTime:0];
+        }
+    }
+    [self.timerExample4 start];
 }
 
 //剩余倒计时
 -(void)resetTimer:(int)sec label:(UILabel *)lastTime{
-    timerExample3 = [[MZTimerLabel alloc] initWithLabel:lastTime andTimerType:MZTimerLabelTypeTimer];
-    [timerExample3 setCountDownTime:sec];
-    timerExample3.timeFormat = @"剩余开奖时间为 mm分ss秒";
-    [timerExample3 start];
+    AppDelegate *main = [UIApplication sharedApplication].delegate;
+    self.timerExample3 = [[MZTimerLabel alloc] initWithLabel:lastTime andTimerType:MZTimerLabelTypeTimer];
+    [self.timerExample3 setCountDownTime:sec];
+    self.timerExample3.timeFormat = @" 剩余开奖时间 mm分ss秒 ";
+    if (main.shouldAgainRequestWinNumber) {
+        NSInteger minus = [DZUtile checkMinus];
+        if (minus <= 600) {
+            self.timerExample3.timeFormat = @" 剩余开奖时间 mm分ss秒 ";
+            self.timerExample4.timeFormat = @" 剩余投注时间 mm分ss秒 ";
+        }else{
+            self.timerExample3.timeFormat = @" 剩余开奖时间 hh时mm分ss秒 ";
+            self.timerExample4.timeFormat = @" 剩余开奖时间 hh时mm分ss秒 ";
+        }
+       [self.timerExample3 setCountDownTime:minus];
+        
+        if (minus > MINUES) {
+            [self.timerExample4 setCountDownTime:minus - MINUES];
+        }else{
+            [self.timerExample4 setCountDownTime:0];
+        }
+    }
+    
+    [self.timerExample3 start];
 }
 
 //重新倒计时
 -(void)restarTime{
-    if (timerExample3) {
+    if (self.timerExample3) {
         //剩余开奖时间
         AppDelegate *main = [UIApplication sharedApplication].delegate;
         NSString *currentTime = main.currentTime;
         NSString *secStr = [[currentTime componentsSeparatedByString:@":"] firstObject];
         NSString *mecStr = [[currentTime componentsSeparatedByString:@":"] lastObject];
-        [timerExample3 setCountDownTime:(secStr.intValue * 60 + mecStr.intValue)];
-        [timerExample3 start];
+        [self.timerExample3 setCountDownTime:(secStr.intValue * 60 + mecStr.intValue)];
+        [self.timerExample3 start];
+        if ((secStr.intValue * 60 + mecStr.intValue) > MINUES) {
+            [self.timerExample4 setCountDownTime:(secStr.intValue * 60 + mecStr.intValue) - MINUES];
+            [self.timerExample4 start];
+        }else{
+            [self.timerExample4 setCountDownTime:0];
+        }
     }
 }
 

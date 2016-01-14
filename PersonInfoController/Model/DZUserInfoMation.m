@@ -23,6 +23,7 @@
         self.email = [coder decodeObjectForKey:@"email"];
         self.balance = [coder decodeObjectForKey:@"balance"];
         self.score = [coder decodeObjectForKey:@"score"];
+        self.password = [coder decodeObjectForKey:@"password"];
     }
     return self;
 }
@@ -38,5 +39,6 @@
     [coder encodeObject:self.email forKey:@"email"];
     [coder encodeObject:self.balance forKey:@"balance"];
     [coder encodeObject:self.score forKey:@"score"];
+    [coder encodeObject:self.password forKey:@"password"];
     }
 @end

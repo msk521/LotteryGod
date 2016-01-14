@@ -13,9 +13,10 @@
 #import "DZBettingView.h"
 #import "MZTimerLabel.h"
 #import "DZCharge.h"
+#import "AppDelegate.h"
 #import <NSDictionary+RequestEncoding.h>
 #import "DZShouldBuyViewController.h"
-@interface DZBettingViewController ()<UIActionSheetDelegate>{
+@interface DZBettingViewController ()<UIActionSheetDelegate,MZTimerLabelDelegate>{
     DZBettingView *bettingView;
     MZTimerLabel *timerExample3;
     UIActionSheet *actionSheet;
@@ -39,6 +40,7 @@
 @property (weak, nonatomic) IBOutlet UILabel *lastTime;
 //选中号码
 @property (nonatomic,strong) NSArray *selectedNumber;
+@property (weak, nonatomic) IBOutlet UILabel *titleLabel;
 
 @end
 
@@ -46,25 +48,72 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    self.willWinNumberDate.text = [NSString stringWithFormat:@"%@期",self.currentRespond.period];
+    AppDelegate *main = (AppDelegate *)[UIApplication sharedApplication].delegate;
+    [main.selectedAnlyes removeAllObjects];
+    self.willWinNumberDate.text = [NSString stringWithFormat:@"%d期",(int)([self.currentRespond.period doubleValue] + 1)];
     NSDictionary *playDic = [[DZAllCommon shareInstance].currentLottyKind.plays lastObject];
     principal = playDic[@"principal"];
     [[UIApplication sharedApplication] setApplicationSupportsShakeToEdit:YES];
     NSString *path = [[NSBundle mainBundle] pathForResource:@"shake" ofType:@"wav"];
     AudioServicesCreateSystemSoundID((__bridge CFURLRef)[NSURL fileURLWithPath:path], &soundID);
-    [self resetTimer:self.resetTimer];
+    [self resetTime];
     [self addSelectedNumberView];
+    self.woringLabel.text = [NSString stringWithFormat:@"至少选择5个号码，猜中开奖号码任意5个数字即可中奖%@元。",playDic[@"profit"]];
+    self.titleLabel.text = [NSString stringWithFormat:@"%@-投注",[DZAllCommon shareInstance].currentLottyKind.name];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(resetTime) name:@"RestTimerNotification" object:nil];
 }
 
 //剩余倒计时
--(void)resetTimer:(int)sec{
-    timerExample3 = [[MZTimerLabel alloc] initWithLabel:self.lastTime andTimerType:MZTimerLabelTypeTimer];
+-(void)resetTime{
+    
+    AppDelegate *main = [UIApplication sharedApplication].delegate;
+    NSString *currentTime = main.currentTime;
+    NSString *secStr = [[currentTime componentsSeparatedByString:@":"] firstObject];
+    NSString *mecStr = [[currentTime componentsSeparatedByString:@":"] lastObject];
+    if (!timerExample3) {
+        timerExample3 = [[MZTimerLabel alloc] initWithLabel:self.lastTime andTimerType:MZTimerLabelTypeTimer];
+        timerExample3.delegate = self;
+        timerExample3.timeFormat = @"mm:ss";
+    }
+    if (main.shouldAgainRequestWinNumber) {
+        NSInteger minus = [DZUtile checkMinus];
+        if (minus <= 600) {
+            timerExample3.timeFormat = @"mm:ss";
+        }else{
+            timerExample3.timeFormat = @"hh:mm:ss";
+        }
+        if (minus > MINUES) {
+            [timerExample3 setCountDownTime:minus - MINUES];
+        }else{
+            [timerExample3 setCountDownTime:0];
+        }
+    }else{
+        int time = secStr.intValue * 60 + mecStr.intValue;
+        if (time > MINUES) {
+            [timerExample3 setCountDownTime:time - MINUES];
+        }else{
+            [timerExample3 setCountDownTime:0];
+        }
+    }
 
-    [timerExample3 setCountDownTime:sec];
-    timerExample3.timeFormat = @"mm:ss";
     [timerExample3 start];
 }
 
+
+#pragma mark---MZTimerLabelDelegate
+
+-(void)timerLabel:(MZTimerLabel*)timerLabel countingTo:(NSTimeInterval)time timertype:(MZTimerLabelType)timerType;
+{
+    
+}
+
+-(void)timerLabel:(MZTimerLabel*)timerLabel finshedCountDownTimerWithTime:(NSTimeInterval)countTime{
+    //刷新当前开奖情况
+    self.willWinNumberDate.text = [NSString stringWithFormat:@"%d期",(int)([self.willWinNumberDate.text doubleValue] + 1)];
+    NSInteger intervalTime = [DZAllCommon shareInstance].currentLottyKind.intervalTime.intValue;
+    [timerExample3 setCountDownTime:intervalTime - MINUES];
+    [timerExample3 start];
+}
 
 #pragma mark --
 #pragma mark -- 摇一摇机选
@@ -97,7 +146,6 @@
     }
     [bettingView motionEnded];
 }
-
 
 -(void)addSelectedNumberView{
     __weak DZBettingViewController *main = self;
@@ -154,6 +202,7 @@
         }
         DZShouldBuyViewController *shouldBuy = [self.storyboard instantiateViewControllerWithIdentifier:@"DZShouldBuyViewController"];
         shouldBuy.money = [NSString stringWithFormat:@"%d",[self.totalMoney.text intValue]];
+        shouldBuy.currentPoids = self.willWinNumberDate.text;
         shouldBuy.isLookResult = NO;
         shouldBuy.totalCount = self.allCount;
         shouldBuy.selectedArr = self.selectedNumber;

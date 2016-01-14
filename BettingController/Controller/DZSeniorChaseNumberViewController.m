@@ -10,7 +10,9 @@
 #import "DZPoidsQueryRequest.h"
 #import "DZCharge.h"
 #import "DZBuySuccessViewController.h"
+#import "DZPayMoneyViewController.h"
 #import <Pingpp.h>
+#import "AppDelegate.h"
 #define ZXYL @"最小盈利"
 #define GDBL @"固定倍率"
 @interface DZSeniorChaseNumberViewController ()<UIAlertViewDelegate,UIActionSheetDelegate>{
@@ -28,6 +30,8 @@
     NSString *isStopWhenWin;
     __weak IBOutlet UILabel *buyInfoLabel;
     NSString *currentRequestApi;
+    __weak IBOutlet UILabel *seniorTitle;
+    
 }
 @property (weak, nonatomic) IBOutlet UITableView *tableview;
 @property (nonatomic,strong) NSMutableArray *dataSource;
@@ -35,6 +39,11 @@
 @property (weak, nonatomic) IBOutlet UIButton *changeYLORBL;
 //倍率 或 最小盈利
 @property (weak, nonatomic) IBOutlet UIButton *rateButton;
+@property (weak, nonatomic) IBOutlet UIButton *tzButton;
+//起始倍数
+@property (weak, nonatomic) IBOutlet UIButton *startButton;
+//追号期数
+@property (weak, nonatomic) IBOutlet UIButton *buyPiodsButton;
 
 @end
 
@@ -43,14 +52,19 @@
 - (void)viewDidLoad {
 
     [super viewDidLoad];
+    [self.startButton setTitle:[NSString stringWithFormat:@"起始%@倍",self.startBeiShu] forState:UIControlStateNormal];
+    [self.buyPiodsButton setTitle:[NSString stringWithFormat:@"追号%@期",self.poids] forState:UIControlStateNormal];
     isStopWhenWin = @"1";
     //固定倍率
     currentRequestApi = FixedRateLotteryChasePlanGenerator;
+    seniorTitle.text = @"高级追号-翻倍倍率";
+    [self.changeYLORBL setTitle:ZXYL forState:UIControlStateSelected];
     NSDictionary *playDic = [[DZAllCommon shareInstance].currentLottyKind.plays lastObject];
     //中奖金额
+
     profit = [playDic[@"principal"] floatValue];
     principal = [playDic[@"profit"] floatValue];
-   buyInfoLabel.text = [NSString stringWithFormat:@"共%d注，%.2f元",self.totalCount,self.totalCount * profit * self.parent.floatValue];
+    buyInfoLabel.text = [NSString stringWithFormat:@"共%d注，%.2f元",self.totalCount,self.totalCount * profit * self.parent.floatValue*self.poids.intValue*self.startBeiShu.intValue];
     [self requestGaoJiZhuiHao];
 }
 
@@ -81,6 +95,10 @@
                 }
                 if (multiple.length >= 2) {
                  tzBeishu = [multiple substringToIndex:multiple.length-1];
+                }
+                if (self.dataSource.count > 0) {
+                    NSDictionary *dic = [self.dataSource lastObject];
+                    buyInfoLabel.text = [NSString stringWithFormat:@"共%d注，%.2f元",self.totalCount,[dic[@"totalPrincipal"] floatValue]];
                 }
             }
             [self requestQiShu:respond[@"count"]];
@@ -124,18 +142,20 @@
 
 //最小盈利或固定倍率
 - (IBAction)zxylOrGdbl:(UIButton *)sender {
-    NSString *title = [sender titleForState:UIControlStateNormal];
+    NSString *title = [sender titleForState:UIControlStateSelected];
     [self.dataSource removeAllObjects];
     [self.tableview reloadData];
     if ([title isEqualToString:ZXYL]) {
-        [self.changeYLORBL setTitle:GDBL forState:UIControlStateNormal];
+        [self.changeYLORBL setTitle:GDBL forState:UIControlStateSelected];
         //最小盈利
+        seniorTitle.text = @"高级追号-最小盈利";
         self.rate = @"100";
         currentRequestApi = LowestYieldLotteryChasePlanGenerator;
         [self.rateButton setTitle:@"最小盈利100%" forState:UIControlStateNormal];
     }else if ([title isEqualToString:GDBL]){
         //固定倍率
-        [self.changeYLORBL setTitle:ZXYL forState:UIControlStateNormal];
+        seniorTitle.text = @"高级追号-翻倍倍率";
+        [self.changeYLORBL setTitle:ZXYL forState:UIControlStateSelected];
         self.rate = @"1";
         currentRequestApi = FixedRateLotteryChasePlanGenerator;
         [self.rateButton setTitle:@"倍率1倍" forState:UIControlStateNormal];
@@ -145,6 +165,9 @@
 
 //购买
 - (IBAction)shouldBuy:(UIButton *)sender {
+    [self.hud show:YES];
+    self.hud.labelText = @"正在投注...";
+    sender.enabled = NO;
     [self buyLottery];
 }
 
@@ -154,16 +177,31 @@
     NSString *lotteryId = [DZAllCommon shareInstance].currentLottyKind.id;
     NSString *lotteryPlayId = playDic[@"id"];
     NSMutableArray *shoulArr = [[NSMutableArray alloc] init];
-    for ( id str in self.selectedArr) {
-        if ([str isKindOfClass:[NSArray class]]) {
-            NSArray *strArr = (NSArray *)str;
-            NSString *strValue = [strArr componentsJoinedByString:@","];
-            [shoulArr addObject:@{@"lotteryNumbers":strValue,@"lotteryPlayId":lotteryPlayId}];
+ 
+    for (id selected in self.selectedArr) {
+        NSArray *shouldBuyArr = @[];
+        if ([selected isKindOfClass:[NSString class]]) {
+            shouldBuyArr = [selected componentsSeparatedByString:@","];
         }else{
-            NSString *strValue = (NSString *)str;
-         [shoulArr addObject:@{@"lotteryNumbers":strValue,@"lotteryPlayId":lotteryPlayId}];
+            shouldBuyArr = selected;
         }
+        NSMutableArray *shouldBuy = [NSMutableArray array];
+        for (id numb in shouldBuyArr) {
+            if ([numb isKindOfClass:[NSString class]]) {
+                NSString *nNum = (NSString *)numb;
+                if (nNum.intValue < 10) {
+                    [shouldBuy addObject:[NSString stringWithFormat:@"0%d",nNum.intValue]];
+                }else{
+                    [shouldBuy addObject:[NSString stringWithFormat:@"%d",nNum.intValue]];
+                }
+            }else{
+                [shouldBuy addObject:numb];
+            }
+        }
+        [shoulArr addObject:@{@"lotteryNumbers":[shouldBuy componentsJoinedByString:@","],@"lotteryPlayId":lotteryPlayId}];
     }
+    
+    
     NSMutableArray *details = [[NSMutableArray alloc] init];
     //投注倍数
     NSArray *tzbss = [tzBeishu componentsSeparatedByString:@","];
@@ -174,26 +212,23 @@
         [details addObject:lotteryNUmbers];
          totleBeishu += [tzbss[i] intValue];
     }
-
-    NSDictionary *resultDic = @{@"account":[DZAllCommon shareInstance].userInfoMation.account,@"details":details,@"lotteryId":lotteryId,@"pattern":self.parent,@"autoCancelOrderWhenWinning":[NSNumber numberWithBool:isStopWhenWin.boolValue]};
+    AppDelegate *main = (AppDelegate *)[UIApplication sharedApplication].delegate;
+    NSArray *selectedAnlyes = [main.selectedAnlyes allObjects];
+    NSString *extension = [selectedAnlyes componentsJoinedByString:@";"];
+    if (!extension) {
+        extension = @"";
+    }
+    NSDictionary *resultDic = @{@"account":[DZAllCommon shareInstance].userInfoMation.account,@"details":details,@"lotteryId":lotteryId,@"pattern":self.parent,@"autoCancelOrderWhenWinning":[NSNumber numberWithBool:isStopWhenWin.boolValue],@"extension":extension};
     NSDictionary *commitDic = @{@"lotteryOrderInfo":[resultDic jsonEncodedKeyValueString],REQUEST_WEB_API:[DZAllCommon shareInstance].allServiceRespond.lotteryOrderCreate};
-    [[DZRequest shareInstance] requestWithPDictionaryaramter:commitDic requestFinish:^(NSDictionary *result) {
-        if ([result[@"success"] intValue] == 1) {
-            
-            NSDictionary *resultDic = result[@"result"];
-            DZUserInfoMation *userInfoMation = [DZAllCommon shareInstance].userInfoMation;
-            userInfoMation.balance = resultDic[@"balance"];
-            userInfoMation.score = resultDic[@"score"];
-            [DZUtile saveData];
-            [[NSNotificationCenter defaultCenter] postNotificationName:UserBlance object:nil];
-            DZBuySuccessViewController *successController = [self.storyboard instantiateViewControllerWithIdentifier:@"DZBuySuccessViewController"];
-            [self.navigationController pushViewController:successController animated:YES];
-        }else{
-            [DZUtile showAlertViewWithMessage:result[@"errorMessage"]];
-        }
-    } requestFaile:^(NSString *error) {
-        
-    }];
+    self.tzButton.enabled = YES;
+    [self.hud hide:YES];
+    DZPayMoneyViewController *payMoney = [self.storyboard instantiateViewControllerWithIdentifier:@"DZPayMoneyViewController"];
+    payMoney.buyInfo = buyInfoLabel.text;
+    NSDictionary *dic = [self.dataSource lastObject];
+    payMoney.shouldPayMoney = [NSString stringWithFormat:@"%.2f",[dic[@"totalPrincipal"] floatValue]];
+    payMoney.currentPoidPayMoney = self.currentPoids;
+    payMoney.commitDic = commitDic;
+    [self.navigationController pushViewController:payMoney animated:YES];
 }
 
 //输入模式 追号倍数等
@@ -254,7 +289,7 @@
             }
             self.rate = filed.text;
         }
-        buyInfoLabel.text = [NSString stringWithFormat:@"共%d注，%.2f元",self.totalCount,self.totalCount * profit * self.parent.floatValue * self.poids.intValue * self.startBeiShu.intValue];
+
             [self requestGaoJiZhuiHao];
     }
 }
@@ -328,14 +363,13 @@
             self.parent = @"0.01";
             [currentBtn setTitle:@"模式1分" forState:UIControlStateNormal];
         }
-        buyInfoLabel.text = [NSString stringWithFormat:@"共%d注，%.2f元",self.totalCount,self.totalCount * profit * self.parent.floatValue * self.poids.intValue * self.startBeiShu.intValue];
+    
         [self requestGaoJiZhuiHao];
 }
 
 -(CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath{
     return 44.0f;
 }
-
 
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];

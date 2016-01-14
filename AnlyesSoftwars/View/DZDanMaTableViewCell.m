@@ -85,7 +85,7 @@
         [button setBackgroundImage:[UIImage imageNamed:@"circle"] forState:UIControlStateNormal];
         [button setBackgroundImage:[UIImage imageNamed:@"circle-hover"] forState:UIControlStateSelected];
         NSString *titleLabel = [button titleForState:UIControlStateNormal];
-        if ([currentSelectedArr containsObject:titleLabel]) {
+        if ([currentSelectedArr containsObject:[NSString stringWithFormat:@"danma%@",titleLabel]]) {
             button.selected = YES;
         }else{
             button.selected = NO;
@@ -96,7 +96,7 @@
     UILabel *danmaLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, lastY, self.bounds.size.width, 21)];
     danmaLabel.textAlignment = NSTextAlignmentCenter;
     danmaLabel.tag = 200;
-    danmaLabel.text = @"胆码个数:";
+    danmaLabel.text = @"出现个数:";
     [self.contentView addSubview:danmaLabel];
     lastY = lastY + 29;
     x = 0;
@@ -112,7 +112,7 @@
         button.tag = 300 + i;
         [button setBackgroundImage:[UIImage imageNamed:@"circle"] forState:UIControlStateNormal];
         [button setBackgroundImage:[UIImage imageNamed:@"circle-hover"] forState:UIControlStateSelected];
-        if ([currentDanmacount containsObject:[NSString stringWithFormat:@"0%d",i+1]]) {
+        if ([currentDanmacount containsObject:[NSString stringWithFormat:@"danmaCount%d",i]]) {
             button.selected = YES;
         }else{
             button.selected = NO;

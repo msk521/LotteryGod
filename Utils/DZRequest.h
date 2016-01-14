@@ -8,6 +8,7 @@
 
 #import <Foundation/Foundation.h>
 #import "DZBaseRequestModel.h"
+
 typedef void (^RequestSuccessFinished)(NSDictionary *);
 typedef void (^RequestFaileFinished)(NSString *);
 typedef void (^RequestFinished)(NSDictionary *);

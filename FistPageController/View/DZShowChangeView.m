@@ -13,9 +13,11 @@
 #import "DZLastWinNumberRequest.h"
 #import "DZLastWinNumberRespond.h"
 #import "DZAllServiceRespond.h"
+#import "DZCheckUpdateRequest.h"
+#import "AppDelegate.h"
 #define LottyKinds @"LottyKinds"
 static NSString *const DZCityTableViewCell_Indentify = @"DZCityTableViewCell";
-@interface DZShowChangeView()<UITableViewDataSource,UITableViewDelegate>{
+@interface DZShowChangeView()<UITableViewDataSource,UITableViewDelegate,UIAlertViewDelegate>{
     NSMutableArray *dataSource;
     DZLottyKindsRespond *selectedLotty;
 }
@@ -45,6 +47,7 @@ static NSString *const DZCityTableViewCell_Indentify = @"DZCityTableViewCell";
 
        __weak DZShowChangeView *main = self;
     [[DZRequest shareInstance] requestWithParamter:request requestFinish:^(NSDictionary *result) {
+        [main.dataSource removeAllObjects];
         for (NSDictionary *dic in result[@"result"]) {
             DZLottyKindsRespond *fpTop = [[DZLottyKindsRespond alloc] initWithDic:dic];
             [main.dataSource addObject:fpTop];
@@ -71,12 +74,12 @@ static NSString *const DZCityTableViewCell_Indentify = @"DZCityTableViewCell";
             DZAllServiceRespond *respond = [[DZAllServiceRespond alloc] initWithDic:result[@"result"]];
             [DZAllCommon shareInstance].allServiceRespond = respond;
             [self requestLottyKinds:respond.lotterys];
+            [DZUtile checkVersion:self];
         }
     } requestFaile:^(NSString *result) {
         
     }];
 }
-
 
 //刷新当前开奖情况
 -(void)lastWinNumber{
@@ -163,5 +166,16 @@ static NSString *const DZCityTableViewCell_Indentify = @"DZCityTableViewCell";
     return 37.0f;
 }
 
-
+#pragma mark---UIAlertViewDelegate
+-(void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex{
+    NSString *title =  [alertView buttonTitleAtIndex:buttonIndex];
+    if ([title isEqualToString:@"升级"]) {
+        AppDelegate *delegate = (AppDelegate *)[UIApplication sharedApplication].delegate;
+        NSString *updateURL = delegate.respond.itmsServicesUrl;
+        if (!updateURL) {
+            updateURL = UPDATEURL;
+        }
+        [[UIApplication sharedApplication] openURL:[NSURL URLWithString:UPDATEURL]];
+    }
+}
 @end

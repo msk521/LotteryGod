@@ -9,7 +9,9 @@
 #import <UIKit/UIKit.h>
 #import "DZMyOrderListRespond.h"
 typedef void (^CancelOrder)(NSString*);
+typedef void (^LookDetail)(DZMyOrderListRespond *);
 @interface DZMyOrderTableViewCell : UITableViewCell
 @property (nonatomic,copy) CancelOrder cancelOrder;
+@property (nonatomic,copy) LookDetail lookDetail;
 -(void)replay:(DZMyOrderListRespond *)respond;
 @end

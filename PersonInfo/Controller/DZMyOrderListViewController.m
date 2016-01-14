@@ -14,11 +14,13 @@
 #import "DZMyOrderTableViewCell.h"
 #import "DZCancelOrderRequest.h"
 #import "DZMyOrderDetailViewController.h"
+#import "DZShowBuyDetailView.h"
 static NSString *const DZMyOrderTableViewCell_Indentify = @"DZMyOrderTableViewCell";
 @interface DZMyOrderListViewController ()<UITableViewDataSource,UITableViewDelegate>
 @property (nonatomic,strong) NSMutableArray *dataSource;
 @property (weak, nonatomic) IBOutlet UITableView *resultTableView;
 @property (nonatomic,strong) DZUserOrderListRequest *request;
+@property (nonatomic,strong) DZShowBuyDetailView *showDetailView;
 @end
 
 @implementation DZMyOrderListViewController
@@ -33,6 +35,9 @@ static NSString *const DZMyOrderTableViewCell_Indentify = @"DZMyOrderTableViewCe
     [self registTableViewCell];
     self.request = [[DZUserOrderListRequest alloc] init];
     [self reset];
+    self.showDetailView = [[[NSBundle mainBundle] loadNibNamed:@"DZShowBuyDetailView" owner:self options:nil] firstObject];
+    self.showDetailView.hidden = YES;
+    [self.view addSubview:self.showDetailView];
 }
 
 //注册cell
@@ -163,6 +168,27 @@ static NSString *const DZMyOrderTableViewCell_Indentify = @"DZMyOrderTableViewCe
             
         }];
     };
+    
+    cell.lookDetail = ^(DZMyOrderListRespond *respond){
+        if (self.showDetailView) {
+            if (self.showDetailView.hidden) {
+                self.showDetailView.hidden = NO;
+                
+                CGAffineTransform newTransform =
+                CGAffineTransformScale(self.showDetailView.transform, 0.1, 0.1);
+                self.showDetailView.transform = newTransform;
+                self.showDetailView.center = self.view.center;
+                [UIView animateWithDuration:0.5f animations:^{
+                    CGAffineTransform ntransform = CGAffineTransformConcat(self.showDetailView.transform,CGAffineTransformInvert(self.showDetailView.transform));
+                    self.showDetailView.transform = ntransform;
+                    self.showDetailView.alpha = 1.0;
+                    self.showDetailView.center = self.view.center;
+                } completion:^(BOOL finished) {
+                    [self.showDetailView replay:respond];
+                }];
+            }
+        }
+    };
     [cell replay:respond];
 }
 
@@ -175,9 +201,17 @@ static NSString *const DZMyOrderTableViewCell_Indentify = @"DZMyOrderTableViewCe
 }
 
 -(CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath{
-    return 121.0f;
-}
+    if (indexPath.row >= self.dataSource.count) {
+        return 0;
+    }
+    DZMyOrderListRespond *respond = self.dataSource[indexPath.row];
 
+    if (respond.finished.intValue != 0) {
+        
+        return 161.0 - 30;
+    }
+    return 161.0f;
+}
 
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];

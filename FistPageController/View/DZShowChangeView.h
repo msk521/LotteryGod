@@ -23,5 +23,6 @@ typedef void (^ChangeLottyKind)(DZLastWinNumberRespond *);
 @property (nonatomic,copy) ChangeLottyKind changeLottyKind;
 //查询所有彩种
 -(void)requestCitys;
-
+//刷新当前开奖情况
+-(void)lastWinNumber;
 @end

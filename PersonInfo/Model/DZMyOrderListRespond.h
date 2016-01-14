@@ -39,4 +39,8 @@
 @property (nonatomic,assign) int autoCancelOrderWhenWinning;
 //订单状态
 @property (nonatomic,copy) NSString *status;
+//分析条件
+@property (nonatomic,copy) NSString *extension;
+//投注详情
+@property (nonatomic,strong) NSArray *detailNumbers;
 @end
