@@ -68,7 +68,13 @@ DZLoginViewController *currentLoginController;
     }
 }
 
-//侧滑显示view
+/**
+ *  侧滑显示view
+ *
+ *  @param letController 左侧view
+ *  @param finishLoading 现实结束
+ *  @param hiddenFinish  隐藏结束
+ */
 +(void)showLetfViewController:(UIViewController *)letController finishLoading:(LoadingLogingControllerFinished)finishLoading hiddenFinish:(LoadingLogingControllerFinished)hiddenFinish{
     currentController = letController;
     AppDelegate *main = [UIApplication sharedApplication].delegate;
