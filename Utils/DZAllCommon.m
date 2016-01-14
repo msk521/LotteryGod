@@ -9,9 +9,13 @@
 #import "DZAllCommon.h"
 
 @implementation DZAllCommon
-
+/**
+ *  利用gcd创建一个单例模式
+ *
+ *  @return 返回当前单例
+ */
 +(DZAllCommon*)shareInstance{
-    //利用gcd创建一个单例模式
+    
     static DZAllCommon *allCommon = nil;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
