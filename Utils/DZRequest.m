@@ -9,6 +9,11 @@
 #import "DZRequest.h"
 #import <MKNetworkKit/MKNetworkKit.h>
 @implementation DZRequest
+/**
+ *  单例
+ *
+ *  @return
+ */
 +(DZRequest *)shareInstance{
     static dispatch_once_t onceToken;
     static DZRequest *vkRequest = nil;
